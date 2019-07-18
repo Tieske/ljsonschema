@@ -79,7 +79,7 @@ function codectx_mt:label()
 end
 
 -- Returns an expression that will result in passed value.
--- Currently user vlaues are stored in an array to avoid consuming a lot of local
+-- Currently user values are stored in an array to avoid consuming a lot of local
 -- and upvalue slots. Array accesses are still decently fast.
 function codectx_mt:uservalue(val)
   local slot = #self._root._uservalues + 1
@@ -197,6 +197,7 @@ function codectx_mt:child(ref)
     _body = {},
     _root = self._root,
     _nparams = 0,
+    _coercion = self._coercion
   }, codectx_mt)
 end
 
@@ -215,6 +216,7 @@ local function codectx(schema, options)
     _body = {},
     _globals = {},
     _uservalues = {},
+    _coercion = not not options.coercion,
     -- schema management
     _validators = {}, -- maps paths to local variable validators
     _external_resolver = options.external_resolver,
@@ -355,6 +357,39 @@ generate_validator = function(ctx, schema)
     ctx:libfunc('type'), ctx:param(1)))
   local datakind = ctx:localvar(sformat('%s == "table" and %s(%s, %s)',
     datatype, ctx:libfunc('lib.tablekind'), ctx:param(1), "custom.array_mt"))
+
+  -- check on coercions required
+  local coerce_boolean, coerce_number
+  if ctx._coercion and schema.type then
+    local type_list = schema.type
+    if type(type_list) == "string" then
+      type_list = { type_list }
+    end
+    for _, possible_type in ipairs(type_list) do
+      if possible_type == "boolean" then coerce_boolean = true end
+      if possible_type == "number" or
+         possible_type == "integer" then coerce_number = true end
+    end
+    if coerce_boolean then
+      ctx:stmt(('if %s == "string" then'                              ):format(datatype))
+      ctx:stmt(('  -- auto-coercion of string to boolean if possible' ))
+      ctx:stmt(('  if %s == "true" or %s == "false" then'             ):format(ctx:param(1), ctx:param(1)))
+      ctx:stmt(('    %s = (%s == "true")'                             ):format(ctx:param(1), ctx:param(1)))
+      ctx:stmt(('    %s = "boolean"'                                  ):format(datatype))
+      ctx:stmt(('  end'                                               ))
+      ctx:stmt(('end'                                                 ))
+    end
+    if coerce_number then
+      ctx:stmt(('if %s == "string" then'                              ):format(datatype))
+      ctx:stmt(('  -- auto-coercion of string to number if possible'  ))
+      ctx:stmt(('  local number_value = %s(%s)'                       ):format(ctx:libfunc('tonumber'), ctx:param(1)))
+      ctx:stmt(('  if number_value then'                              ))
+      ctx:stmt(('    %s = number_value'                               ):format(ctx:param(1)))
+      ctx:stmt(('    %s = "number"'                                   ):format(datatype))
+      ctx:stmt(('  end'                                               ))
+      ctx:stmt(('end'                                                 ))
+    end
+  end
 
   -- type check
   local tt = type(schema.type)

@@ -50,7 +50,7 @@ assert(jsonschema.jsonschema_validator(my_schema))
 
 -- Note: do cache the result of schema compilation as this is a quite
 -- expensive process
-local my_validator = jsonschema.generate_validator(my_schema)
+local my_validator = jsonschema.generate_validator(my_schema, options)
 
 -- Now validate some data against our spec:
 local my_data = { foo='hello', bar=42 }
@@ -66,6 +66,40 @@ metatable on array tables. This can be easily achieved by calling
 Besides proper validation of objects and arrays, it is also important for
 performance. Without the meta table, the library will traverse the entire
 table in a non-JITable way.
+
+### Automatic coercion of numbers, integers and booleans
+
+When validating properties that are not json, the input usually always is a
+string value. For example a query string or header value.
+
+For these cases there is an option `coercion`. If you set this flag then
+a string value targetting a type of `boolean`, `number`, or `integer` will be
+attempted coerced to the proper type. After which the validation will occur.
+
+```lua
+local jsonschema = require 'resty.ljsonschema'
+
+local my_schema = {
+  type = 'object',
+  properties = {
+    foo = { type = 'boolean' },
+    bar = { type = 'number' },
+  },
+}
+
+local options = {
+  coercion = true,
+}
+-- Note: do cache the result of schema compilation as this is a quite
+-- expensive process
+local validator          = jsonschema.generate_validator(my_schema)
+local coercing_validator = jsonschema.generate_validator(my_schema, options)
+
+-- Now validate string values against our spec:
+local my_data = { foo='true', bar='42' }
+print(validator(my_data))            -->   false
+print(coercing_validator(my_data))   -->   true
+```
 
 ### Advanced usage
 
