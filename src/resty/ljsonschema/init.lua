@@ -59,10 +59,10 @@ function codectx_mt:localvar(init, nres)
   local nloc = self._nloc
   nres = nres or 1
   for i=1, nres do
-    names[i] = sformat('var_%d_%d', self._idx, nloc+i)
+    names[i] = sformat('locals.var_%d_%d', self._idx, nloc+i)
   end
 
-  self:stmt(sformat('local %s = ', tconcat(names, ', ')), init or 'nil')
+  self:stmt(sformat('%s = ', tconcat(names, ', ')), init or 'nil')
   self._nloc = nloc + nres
   return unpack(names)
 end
@@ -841,6 +841,7 @@ local function generate_main_validator_ctx(schema, options)
   --  * the custom callbacks (used to customize various aspects of validation
   --    or for dependency injection)
   ctx:preface('local uservalues, lib, custom = ...')
+  ctx:preface('local locals = {}')
   ctx:stmt('return ', ctx:validator(nil, schema))
   return ctx
 end
