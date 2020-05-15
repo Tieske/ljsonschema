@@ -1365,6 +1365,35 @@ describe("[code generator]", function()
     end)
   end)
 
+  it("generates valid code numbers as strings", function()
+    -- not that "0" is a string-key containing a number
+    local test_schema = [[{
+      "type":"object",
+      "properties":{
+        "0":{
+          "anyOf":[
+            {
+              "maximum":1000000000000,
+              "minimum":-1000000000000,
+              "type":"number"
+            },
+            {
+              "type":"array",
+              "items":{
+                "maximum":1000000000000,
+                "minimum":-1000000000000,
+                "type":"number"
+              }
+            }
+          ]
+        }
+      }
+    }]]
+    assert.has.no.error(function()
+      jsonschema.generate_validator(cjson.decode(test_schema))
+    end)
+  end)
+
 end)
 
 

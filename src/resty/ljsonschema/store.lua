@@ -54,7 +54,9 @@ function ref_mt:child(items)
   if not (items and items[1]) then return self end
   local schema = self:resolve()
   for _, node in ipairs(items) do
-    schema = assert(schema[decodepart(node)])
+    local key1 = urlunescape(node) -- first try the string value
+    local key2 = decodepart(node)  -- second is coerced to a number
+    schema = assert(schema[key1] or schema[key2])
   end
   return setmetatable({ store=self.store, schema=schema }, ref_mt)
 end
