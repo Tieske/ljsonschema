@@ -1,0 +1,38 @@
+[
+    {
+        "description": "validation of date strings",
+        "schema": {"format": "date"},
+        "tests": [
+            {
+                "description": "a valid date string",
+                "data": "1963-06-19",
+                "valid": true
+            },
+            {
+                "description": "a valid leap year date",
+                "data": "2020-02-29",
+                "valid": true
+            },
+            {
+                "description": "a invalid leap year date",
+                "data": "2019-02-29",
+                "valid": false
+            },
+            {
+                "description": "a invalid February date",
+                "data": "2019-02-30",
+                "valid": false
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "06/19/1963",
+                "valid": false
+            },
+            {
+                "description": "only RFC3339 not all of ISO 8601 are valid",
+                "data": "2013-350",
+                "valid": false
+            }
+        ]
+    }
+]
