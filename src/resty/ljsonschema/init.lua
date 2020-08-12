@@ -706,8 +706,11 @@ generate_validator = function(ctx, schema)
       ctx:stmt(        '  end')
     end
     if schema.pattern then
+      -- Ensure patterns escape format specifiers for error messages
+      local format_escaped_pattern = string.gsub(schema.pattern, "%%", "%%%%")
+
       ctx:stmt(sformat('  if not %s(%s, %q) then', ctx:libfunc('custom.match_pattern'), ctx:param(1), schema.pattern))
-      ctx:stmt(sformat('    return false, %s([[failed to match pattern ]] .. %q .. [[ with %%q]], %s)', ctx:libfunc('string.format'), schema.pattern, ctx:param(1)))
+      ctx:stmt(sformat('    return false, %s([[failed to match pattern ]] .. %q .. [[ with %%q]], %s)', ctx:libfunc('string.format'), format_escaped_pattern, ctx:param(1)))
       ctx:stmt(        '  end')
     end
     ctx:stmt('end') -- if string

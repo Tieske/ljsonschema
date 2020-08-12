@@ -1394,6 +1394,35 @@ describe("[code generator]", function()
     end)
   end)
 
+  describe("#pattern failure error message can contain % (format specifier)", function()
+    it("single", function()
+      local test_schema = [[{
+        "pattern": "^%$",
+        "type": "string"
+      }]]
+      local func_as_string = jsonschema.generate_validator_code(cjson.decode(test_schema))
+      assert.not_nil(string.find(func_as_string, "\"^%%$\""))
+    end)
+
+    it("repeated", function()
+      local test_schema = [[{
+        "pattern": "^%%%$",
+        "type": "string"
+      }]]
+      local func_as_string = jsonschema.generate_validator_code(cjson.decode(test_schema))
+      assert.not_nil(string.find(func_as_string, "\"^%%%%%%$\""))
+    end)
+
+    it("mixed", function()
+      local test_schema = [[{
+        "pattern": "^1%2%%3%4$",
+        "type": "string"
+      }]]
+      local func_as_string = jsonschema.generate_validator_code(cjson.decode(test_schema))
+      assert.not_nil(string.find(func_as_string, "\"^1%%2%%%%3%%4$\""))
+    end)
+  end)
+
 end)
 
 
