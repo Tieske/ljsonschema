@@ -1394,7 +1394,7 @@ describe("[code generator]", function()
     end)
   end)
 
-  describe("#pattern failure error message can contain % (format specifier)", function()
+  describe("pattern failure error message can contain % (format specifier)", function()
     it("single", function()
       local test_schema = [[{
         "pattern": "^%$",

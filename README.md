@@ -161,6 +161,12 @@ at this time:
 History
 -------
 
+### 1.0.x (unreleased)
+ - fix: if a `schema.pattern` clause contained a `%` then the generated code
+   for error mesages (invoking `string.format`) would fail because it tried
+   to substitute it (assuming it to be a format specifier). `%` is now properly 
+   escaped.
+
 ### 1.0 (15-may-2020)
 
  - fix: using a string-key containing only numbers would fail because it was
