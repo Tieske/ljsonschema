@@ -9,27 +9,5 @@
               "valid": true
           }
       ]
-  },
-  {
-    "description": "validation of unknown format attribute similar to date",
-    "schema": {"format": "date-unknown"},
-    "tests": [
-        {
-            "description": "a unknown format attribute should pass thru validator",
-            "data": "doesn't matter what we put here, always valid",
-            "valid": true
-        }
-    ]
-  },
-  {
-    "description": "validation of unknown format attribute similar to date-time",
-    "schema": {"format": "unknown-time"},
-    "tests": [
-        {
-            "description": "a unknown format attribute should pass thru validator",
-            "data": "doesn't matter what we put here, always valid",
-            "valid": true
-        }
-    ]
   }
 ]
