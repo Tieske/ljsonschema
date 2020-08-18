@@ -52,7 +52,7 @@ assert(jsonschema.jsonschema_validator(my_schema))
 
 -- Note: do cache the result of schema compilation as this is a quite
 -- expensive process
-local my_validator = jsonschema.generate_validator(my_schema, options)
+local my_validator = jsonschema.generate_validator(my_schema)
 
 -- Now validate some data against our spec:
 local my_data = { foo='hello', bar=42 }
@@ -102,6 +102,52 @@ local my_data = { foo='true', bar='42' }
 print(validator(my_data))            -->   false
 print(coercing_validator(my_data))   -->   true
 ```
+
+### Semantic validation with "format" attribute
+
+The "format" keyword is defined to allow interoperable semantic validation for
+a fixed subset of values. Currently only `date`, `date-time`, and `time`
+attributes are defined and follow RFC 3339 specifications. Validation rules
+[5.6][rfc3339-5.6] and the additional restriction rules [5.7][rfc3339-5.7] have
+been implemented. All other format attributes will not perform validation.
+
+```lua
+local jsonschema = require 'resty.ljsonschema'
+
+local my_schema = {
+  type = 'object',
+  properties = {
+    foo = { type = 'string', format = 'date' },
+    bar = { type = 'string', format = 'date-time' },
+    baz = { type = 'string', format = 'time' },
+  },
+}
+
+-- Test our schema to be a valid JSONschema draft 4 spec, against
+-- the meta schema:
+assert(jsonschema.jsonschema_validator(my_schema))
+
+-- Note: do cache the result of schema compilation as this is a quite
+-- expensive process
+local my_validator = jsonschema.generate_validator(my_schema)
+
+-- Now validate some data against our spec:
+local my_data = {
+  foo='2020-02-29',
+  bar='2020-02-29T08:30:00Z',
+  baz='08:30:60Z'
+}
+print(my_validator(my_data))   --> true
+my_data = {
+  foo='20200-02-29',           --> Invalid date specified
+  bar='2020-02-29T08:30:00Z',
+  baz='08:30:06.283185+00:20'
+}
+print(my_validator(my_data))   --> false
+```
+
+**Note**: Leap seconds cannot be predicted far into the future and are
+          therefore allowed for every value validated against "time".
 
 ### Advanced usage
 
@@ -165,9 +211,12 @@ History
 
 ### 1.0.x (unreleased)
  - fix: if a `schema.pattern` clause contained a `%` then the generated code
-   for error mesages (invoking `string.format`) would fail because it tried
+   for error messages (invoking `string.format`) would fail because it tried
    to substitute it (assuming it to be a format specifier). `%` is now properly
    escaped.
+ - feat: add `date`, `date-time`, and `time` Semantic validation for "format"
+   attribute. Validation follows the RFC3339 specification sections
+   [5.6][rfc3339-5.6] and [5.7][rfc3339-5.7] for dates and times.
 
 ### 1.0 (15-may-2020)
 
@@ -189,7 +238,7 @@ History
 
  - fix: use PCRE regex if available instead of Lua patterns (better jsonschema
    compliance)
- - fix: deal with broekn coroutine override in OpenResty (by @jdesgats)
+ - fix: deal with broken coroutine override in OpenResty (by @jdesgats)
  - move array/object validation over to OpenResty based CJSON implementation
    (using the `array_mt`)
  - fix: schema with only 'required' was not validated at all
@@ -197,3 +246,6 @@ History
  - fix: quoting/escaping
 
 ### 7-Jun-2019 Forked from https://github.com/jdesgats/ljsonschema
+
+[rfc3339-5.6]: https://tools.ietf.org/html/rfc3339#section-5.6
+[rfc3339-5.7]: https://tools.ietf.org/html/rfc3339#section-5.7
