@@ -9,13 +9,58 @@
                 "valid": true
             },
             {
+                "description": "a valid time string without second fraction",
+                "data": "08:30:06Z",
+                "valid": true
+            },
+            {
+                "description": "a valid time string with plus offset",
+                "data": "12:00:27.87+00:20",
+                "valid": true
+            },
+            {
+                "description": "a valid time string with minus offset",
+                "data": "15:59:50.123-08:00",
+                "valid": true
+            },
+            {
+                "description": "an invalid offset in time string",
+                "data": "15:59:60-24:00",
+                "valid": false
+            },
+            {
                 "description": "an invalid time string",
                 "data": "08:30:06 PST",
                 "valid": false
             },
             {
+                "description": "an invalid time string where the time is valid but string is not r-trimmed",
+                "data": "08:30:06 ",
+                "valid": false
+            },
+            {
                 "description": "only RFC3339 not all of ISO 8601 are valid",
                 "data": "01:01:01,1111",
+                "valid": false
+            },
+            {
+                "description": "invalid start sequence",
+                "data": "abc2020-08-07T08:30:00Z",
+                "valid": false
+            },
+            {
+                "description": "invalid end sequence",
+                "data": "08:30:00Zcba",
+                "valid": false
+            },
+            {
+                "description": "invalid start and end sequence",
+                "data": "abc08:30:00Zcba",
+                "valid": false
+            },
+            {
+                "description": "invalid random garbage data",
+                "data": "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_",
                 "valid": false
             }
         ]

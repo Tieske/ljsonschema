@@ -71,6 +71,7 @@ local supported = {
   'spec/extra/format/date.json',
   'spec/extra/format/date-time.json',
   'spec/extra/format/time.json',
+  'spec/extra/format/unknown.json',
   -- Lua extensions
   'spec/extra/table.json',
   'spec/extra/function.lua',

@@ -1,0 +1,13 @@
+[
+  {
+      "description": "validation of unknown format attribute",
+      "schema": {"format": "unknown"},
+      "tests": [
+          {
+              "description": "a unknown format attribute should pass thru validator",
+              "data": "doesn't matter what we put here, always valid",
+              "valid": true
+          }
+      ]
+  }
+]

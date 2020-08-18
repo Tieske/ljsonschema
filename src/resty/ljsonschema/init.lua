@@ -714,51 +714,102 @@ generate_validator = function(ctx, schema)
       ctx:stmt(        '  end')
     end
     if schema.format then
-      local pattern
-
-      if schema.format == "date" then
-        --[[
+      --[[
           Spec: https://tools.ietf.org/html/rfc3339#section-5.6
+                https://tools.ietf.org/html/rfc3339#section-5.7
 
-          JSON schema validation does not require section 5.7 validation
-          allowing for invalid date (e.g. 2020-04-31, and 2020-02-29).
-        ]]--
-        pattern = [[^(?<fullyear>\d{4})-(?<month>0[1-9]|1[0-2])-(?<mday>0[1-9]|[12][0-9]|3[01])$]]
-      elseif schema.format == "date-time" then
+          Handle 'date' and 'date-time' format attributes
+        ]]
+      if schema.format:sub(1, 4) == "date" then
+        local date_pattern = "^(%d%d%d%d)-(%d%d)-(%d%d)(.*)"
+        ctx:stmt(sformat(  '  local year, month, day, date_remaining = %s:match(%q)', ctx:param(1), date_pattern))
+        ctx:stmt(          '  year, month, day = (year and tonumber(year) or -1),')
+        ctx:stmt(          '                     (month and tonumber(month) or -1),')
+        ctx:stmt(          '                     (day and tonumber(day) or -1)')
+        ctx:stmt(          '  local is_date_valid = true')
+        ctx:stmt(          '  if day < 0 or day > 31 or month < 0 or month > 12 or year < 0 then')
+        ctx:stmt(          '    is_date_valid =  false')
+        ctx:stmt(          '  elseif month == 2 then')
+        ctx:stmt(          '    if ((year % 400) == 0 or ((year % 100) ~= 0 and (year % 4) == 0)) then')
+        ctx:stmt(          '      if day > 29 then')
+        ctx:stmt(sformat(  '        return false, %s([[expected valid leap year date, got %%q]], %s)', ctx:libfunc('string.format'), ctx:param(1)))
+        ctx:stmt(          '      end')
+        ctx:stmt(          '    else')
+        ctx:stmt(          '      is_date_valid =  day <= 28')
+        ctx:stmt(          '    end')
+        ctx:stmt(          '  elseif month == 4 or month == 6 or month == 9 or month == 11 then')
+        ctx:stmt(          '    is_date_valid =  day <= 30')
+        ctx:stmt(          '  else')
+        ctx:stmt(          '    is_date_valid =  day <= 31')
+        ctx:stmt(          '  end')
+
         --[[
-          Spec: https://tools.ietf.org/html/rfc3339#section-5.6
+          Handle invalid date and formats:
 
-          JSON schema validation does not require section 5.7 validation
-          allowing for invalid date (e.g. 2020-04-31T00:00:00.000Z, and 2020-02-29T00:00:00.000Z).
-        ]]--
-        pattern = [[^(?<fullyear>\d{4})-(?<month>0[1-9]|1[0-2])-(?<mday>0[1-9]|[12][0-9]|3[01])[Tt](?<hour>[01][0-9]|2[0-3]):(?<minute>[0-5][0-9]):(?<second>[0-5][0-9]|60)(?<secfrac>\.[0-9]+)?([Zz]|(\+|-)(?<offset_hour>[01][0-9]|2[0-3]):(?<offset_minute>[0-5][0-9]))$]]
-      elseif schema.format == "time" then
-        -- Spec: https://tools.ietf.org/html/rfc3339#section-5.6
-        pattern = [[^(?<hour>[01][0-9]|2[0-3]):(?<minute>[0-5][0-9]):(?<second>[0-5][0-9]|60)(?<secfrac>\.[0-9]+)?([Zz]|(\+|-)(?<offset_hour>[01][0-9]|2[0-3]):(?<offset_minute>[0-5][0-9]))$]]
+          * 'date'      - Ensure the date is valid and their is no remaining
+                          string to process.
+          * 'date-time' - Ensure the date is valid and contains T or t to
+                          continue processing the time format. Update the
+                          remaining string to move based the time attribute
+                          indicator.
+          ]]
+        if schema.format == "date-time" then
+          ctx:stmt(        '  if not is_date_valid or not (date_remaining and string.match(date_remaining:sub(1), "[Tt]")) then')
+        else
+          ctx:stmt(        '  if not is_date_valid or date_remaining ~= "" then')
+        end
+        ctx:stmt(sformat(  '    return false, %s([[expected valid %q, got %%q]], %s)', ctx:libfunc('string.format'), schema.format, ctx:param(1)))
+        if schema.format == "date-time" then
+          ctx:stmt(        '  else')
+          ctx:stmt(        '    date_remaining = date_remaining:sub(2, -1)')
+        end
+        ctx:stmt(          '  end')
       end
 
-      if pattern then
-        ctx:stmt(sformat('  if not %s(%s, %q) then', ctx:libfunc('custom.match_pattern'), ctx:param(1), pattern))
-        ctx:stmt(sformat('    return false, %s([[expected valid ]] .. %q .. [[, got %%q]], %s)', ctx:libfunc('string.format'), schema.format, ctx:param(1)))
-        ctx:stmt(        '  end')
+      --[[
+          Spec: https://tools.ietf.org/html/rfc3339#section-5.6
+                https://tools.ietf.org/html/rfc3339#section-5.7
 
-        -- Handle restrictions for dates; see spec https://tools.ietf.org/html/rfc3339#section-5.7
-        if string.sub(schema.format, 1, 4) == "date" then
-          ctx:stmt(sformat('  local fullyear, month, day = %s:match(%q)', ctx:param(1), "(%d+)-(%d+)-(%d+).*"))
-          ctx:stmt(        '  fullyear = tonumber(fullyear)')
-          ctx:stmt(        '  month = tonumber(month)')
-          ctx:stmt(        '  day = tonumber(day)')
-          ctx:stmt(        '  if (month == 4 or month == 6 or month == 9 or month == 11) and day > 30 then')
-          ctx:stmt(sformat('    return false, %s([[expected valid date, got %%q]], %s)', ctx:libfunc('string.format'), ctx:param(1)))
-          ctx:stmt(        '  elseif month == 2 then')
-          ctx:stmt(        '    local is_leap_year = ((fullyear % 400) == 0 or ((fullyear % 100) ~= 0 and (fullyear % 4) == 0))')
-          ctx:stmt(        '    if is_leap_year and day > 29 then')
-          ctx:stmt(sformat('      return false, %s([[expected valid leap year date, got %%q]], %s)', ctx:libfunc('string.format'), ctx:param(1)))
-          ctx:stmt(        '    elseif not is_leap_year and day > 28 then')
-          ctx:stmt(sformat('      return false, %s([[expected valid date, got %%q]], %s)', ctx:libfunc('string.format'), ctx:param(1)))
-          ctx:stmt(        '    end')
-          ctx:stmt(        '  end')
+          Handle 'date-time' and 'time' format attributes
+        ]]
+      if schema.format:sub(-4) == "time" then
+        local time_pattern = "(%d%d)%:([0-5]%d)%:([%d%.]+)([Zz%+%-])(.*)"
+        local offset_pattern = "(%d%d)%:([0-5]%d)$"
+
+        ctx:stmt(            '  local offset_hour, offset_minute')
+        if schema.format == "date-time" then
+          ctx:stmt(sformat(  '  local time_pattern = %q', time_pattern))
+          ctx:stmt(          '  local hour, minute, seconds, sign_offset, time_remaining = date_remaining:match(time_pattern)')
+          ctx:stmt(          '  local last_character = date_remaining:sub(-1)')
+        else
+          ctx:stmt(sformat(  '  local time_pattern = %q', "^" .. time_pattern))
+          ctx:stmt(sformat(  '  local hour, minute, seconds, sign_offset, time_remaining = %s:match(time_pattern)', ctx:param(1)))
+          ctx:stmt(sformat(  '  local last_character = %s:sub(-1)', ctx:param(1)))
         end
+        ctx:stmt(            '  if time_remaining then')
+        ctx:stmt(sformat(    '    offset_hour, offset_minute = time_remaining:match(%q)', offset_pattern))
+        ctx:stmt(            '  end')
+        ctx:stmt(            '  hour, minute, seconds, offset_hour, offset_minute = (hour and tonumber(hour) or -1),')
+        ctx:stmt(            '                                                      (minute and tonumber(minute) or -1),')
+        ctx:stmt(            '                                                      (seconds and tonumber(seconds) or -1),')
+        ctx:stmt(            '                                                      (offset_hour and tonumber(offset_hour) or -1),')
+        ctx:stmt(            '                                                      (offset_minute and tonumber(offset_minute) or -1)')
+        ctx:stmt(            '  local is_time_valid = true')
+        ctx:stmt(            '  if hour < 0 or hour > 23 or seconds < 0 or seconds > 60 then')
+        ctx:stmt(            '    is_time_valid = false')
+        ctx:stmt(            '  end')
+        ctx:stmt(            '  if not sign_offset or not sign_offset:match("[Zz%+%-]") then')
+        ctx:stmt(            '    is_time_valid = false')
+        ctx:stmt(            '  elseif sign_offset:match("[%+%-]") then')
+        ctx:stmt(            '    if offset_hour < 0 or offset_hour > 23 then')
+        ctx:stmt(            '      is_time_valid = false')
+        ctx:stmt(            '    end')
+        ctx:stmt(            '  elseif not string.match(last_character:sub(-1), "[Zz]") then')
+        ctx:stmt(            '    is_time_valid = false')
+        ctx:stmt(            '  end')
+        ctx:stmt(            '  if not is_time_valid then')
+        ctx:stmt(sformat(    '    return false, %s([[expected valid %q, got %%q]], %s)', ctx:libfunc('string.format'), schema.format, ctx:param(1)))
+        ctx:stmt(            '  end')
       end
     end
     ctx:stmt('end') -- if string
