@@ -171,9 +171,22 @@ local function debug_dump(self, code, prefix, err)
   end
 end
 
+local load_chunk
+
+if _VERSION == "Lua 5.1" then
+  load_chunk = function(chunk, name)
+    return loadstring(chunk, 'jsonschema:' .. (name or 'anonymous'))
+  end
+else
+  load_chunk = function(chunk, name)
+    return load(chunk, 'jsonschema:' .. (name or 'anonymous'))
+  end
+end
+
+
 function codectx_mt:as_func(name, ...)
   local chunk = self:as_string()
-  local loaded_chunk, err = load(chunk, 'jsonschema:' .. (name or 'anonymous'))
+  local loaded_chunk, err = load_chunk(chunk, name)
   if DEBUG then
     debug_dump(self, chunk, loaded_chunk and "SUCCESS" or "FAILED", err)
   end
