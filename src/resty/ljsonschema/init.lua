@@ -880,7 +880,21 @@ generate_validator = function(ctx, schema)
       ctx:stmt(sformat('  %s(%s)', validator, ctx:param(1)), op)
     end
     ctx:stmt(') then')
-    ctx:stmt('  return false, "object matches none of the alternatives"')
+    ctx:stmt('  local unmatched, i = nil, 0')
+    ctx:stmt('  do')
+    for i, subschema in ipairs(schema.anyOf) do
+      ctx:stmt(        '  local was_matched')
+      ctx:stmt(        '  local error_message')
+      local validator = ctx:validator({ 'anyOf', tostring(i-1) }, subschema)
+      ctx:stmt(sformat('  was_matched, error_message = %s(%s)', validator, ctx:param(1)))
+      ctx:stmt(        '  if not was_matched then')
+      ctx:stmt(        '    i = i + 1')
+      ctx:stmt(        '    unmatched = (unmatched and unmatched.."; " or "") .. i .. ") " .. error_message')
+      ctx:stmt(        '  end')
+    end
+    ctx:stmt('  end')
+    ctx:stmt(sformat('  return false, %s("object needs one of the following rectifications: %%s", unmatched)',
+                     ctx:libfunc('string.format')))
     ctx:stmt('end')
   end
 

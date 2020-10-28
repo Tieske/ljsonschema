@@ -1,0 +1,78 @@
+[
+    {
+        "description": "anyOf",
+        "schema": {
+            "anyOf": [
+                {
+                    "type": "integer"
+                },
+                {
+                    "minimum": 2
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "neither anyOf valid",
+                "data": 1.5,
+                "valid": false,
+                "error": "object needs one of the following rectifications: 1) wrong type: expected integer, got number; 2) expected 1.5 to be greater than 2"
+            }
+        ]
+    },
+    {
+        "description": "anyOf with base schema",
+        "schema": {
+            "type": "string",
+            "anyOf" : [
+                {
+                    "maxLength": 2
+                },
+                {
+                    "minLength": 4
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "mismatch base schema",
+                "data": 3,
+                "valid": false,
+                "error": "wrong type: expected string, got number"
+            },
+            {
+                "description": "both anyOf invalid",
+                "data": "foo",
+                "valid": false,
+                "error": "object needs one of the following rectifications: 1) string too long, expected at most 2, got 3; 2) string too short, expected at least 4, got 3"
+            }
+        ]
+    },
+    {
+        "description": "anyOf complex types",
+        "schema": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "bar": {"type": "integer"}
+                    },
+                    "required": ["bar"]
+                },
+                {
+                    "properties": {
+                        "foo": {"type": "string"}
+                    },
+                    "required": ["foo"]
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "neither anyOf valid (complex)",
+                "data": {"foo": 2, "bar": "quux"},
+                "valid": false,
+                "error": "object needs one of the following rectifications: 1) property bar validation failed: wrong type: expected integer, got string; 2) property foo validation failed: wrong type: expected string, got number"
+            }
+        ]
+    }
+]

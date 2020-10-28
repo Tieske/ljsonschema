@@ -212,6 +212,7 @@ History
 ### 1.1.x (unreleased)
  - fix: fixes an error in the `maxItems` error message (#7)
  - fix: date-time validation would error out on bad input (#10)
+ - improvement: anyOf failures now list what failed (#9)
 
 ### 1.1.0 (18-aug-2020)
  - fix: if a `schema.pattern` clause contained a `%` then the generated code
