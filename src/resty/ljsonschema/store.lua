@@ -121,7 +121,7 @@ end
 --
 -- * `base`: refers to the base schema (e.g. for a nested subschema to find
 --   its parent schema
--- * `map`: only for "root" schemas, maps indetifiers to subschemas
+-- * `map`: only for "root" schemas, maps indentifiers to subschemas
 function store_mt:ctx(t)
   local c = self.ctx_store[t]
   if not c then
@@ -183,6 +183,11 @@ function store_mt:insert(schema)
 
   local function walk(s, p)
     local id = s.id
+    if type(id) ~= "string" then
+      -- this is not an ID string, but a property called "id", so no need to
+      -- check this one.
+      id = nil
+    end
     if id and s ~= schema and is_schema(p) then
       -- there is an id, but it is not over: we have 2 different cases (!)
       --  1. the id is a fragment: it is some kind of an internal alias
@@ -193,7 +198,7 @@ function store_mt:insert(schema)
         map[id.fragment] = self:ref(s)
       else
         -- relative url (case 2)
-        -- FIXME: I'm sure it's broken bacasue resolution scopes could be
+        -- FIXME: I'm sure it's broken bacause resolution scopes could be
         -- nested... but at the same time, who the hell would do this and it
         -- passes the tests so ¯\_(ツ)_/¯
         local resolved = base_id:resolve(id)
@@ -224,7 +229,7 @@ end
 
 local function new(schema, resolver)
   local self = setmetatable({
-    ctx_store = {}, -- used to store metadata aobut schema parts
+    ctx_store = {}, -- used to store metadata about schema parts
     schemas = {},
     resolver = resolver or default_resolver,
   }, store_mt)

@@ -50,5 +50,28 @@
                 "error": "failed to validate item 1: wrong type: expected string, got number"
             }
         ]
+    },
+    {
+        "description": "a property 'id' on an object named as a keyword ('properties' here)",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "properties": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "match array",
+                "data": { "properties": { "id": "my_id" } },
+                "valid": true
+            }
+        ]
     }
 ]
