@@ -16,7 +16,10 @@
                 "description": "neither anyOf valid",
                 "data": 1.5,
                 "valid": false,
-                "error": "object needs one of the following rectifications: 1) wrong type: expected integer, got number; 2) expected 1.5 to be greater than 2"
+                "error": [
+                    "object needs one of the following rectifications: 1) wrong type: expected integer, got number; 2) expected 1.5 to be greater than 2",
+                    "object needs one of the following rectifications: 1) wrong type: expected integer, got number; 2) expected 1.5 to be greater than 2.0"
+                ]
             }
         ]
     },

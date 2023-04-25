@@ -1,4 +1,4 @@
-name: "Unix build"
+name: "Lua"
 
 concurrency:
   # for PR's cancel the running task, if another commit is pushed
@@ -24,28 +24,32 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        openresty:
-          - 1.21.4.1
-          - 1.19.9.1
+        luaVersion:
+        # - "5.1" not supported because of 'goto' usage, a 5.2 feature
+        - "5.2"
+        - "5.3"
+        - "5.4"
+        - "luajit-2.1.0-beta3"
 
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
-    - uses: leafo/gh-actions-openresty@v1
+    - uses: leafo/gh-actions-lua@v8
       with:
-        openrestyVersion: ${{ matrix.openresty }}
+        luaVersion: ${{ matrix.luaVersion }}
 
-    # This will install luarocks, configured to use luajit that comes with openresty
     - uses: leafo/gh-actions-luarocks@v4
-      with:
-        withLuaPath: "/usr/local/openresty/luajit/"
 
     - name: dependencies
       run: |
         luarocks make
+        luarocks install lua-cjson
         luarocks install busted
 
-    - run: busted
+    - name: test
+      run: |
+        busted --lua=lua

@@ -142,7 +142,26 @@ describe("[JSON schema Draft 4]", function()
                     result, err = validator(case.data)
                   end)
                   if case.error then
-                    assert.equal(case.error, err)
+                    local errors = case.error
+                    if type(errors) ~= "table" then
+                      errors = { errors }
+                    end
+                    local matched = false
+                    for _, e in ipairs(errors) do
+                      if e == err then
+                        matched = true
+                        break
+                      end
+                    end
+                    if not matched then
+                      if #errors > 1 then
+                        assert.equal({
+                          ["expected one of these:"] = errors
+                        }, err)
+                      else
+                        assert.equal(errors[1], err)
+                      end
+                    end
                   end
                   assert.has.error(function()
                     assert(result, err)
