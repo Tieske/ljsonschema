@@ -74,6 +74,7 @@ local supported = {
   'spec/extra/format/unknown.json',
   -- errors
   'spec/extra/errors/anyOf.json',
+  'spec/extra/errors/types.json',
   -- Lua extensions
   'spec/extra/table.json',
   'spec/extra/function.lua',

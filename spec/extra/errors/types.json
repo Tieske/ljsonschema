@@ -1,0 +1,102 @@
+[
+    {
+        "description": "types expected",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "integer":  { "type": "integer" },
+                "number":   { "type": "number" },
+                "null":     { "type": "null" },
+                "boolean":  { "type": "boolean" },
+                "object":   { "type": "object" },
+                "array":    { "type": "array" },
+                "string":   { "type": "string" }
+            }
+        },
+        "tests": [
+            {
+                "description": "error reports 'integer' as expected",
+                "data": { "integer": "foobar" },
+                "valid": false,
+                "error": "property integer validation failed: wrong type: expected integer, got string"
+            }, {
+                "description": "error reports 'number' as expected",
+                "data": { "number": "foobar" },
+                "valid": false,
+                "error": "property number validation failed: wrong type: expected number, got string"
+            }, {
+                "description": "error reports 'null' as expected",
+                "data": { "null": "foobar" },
+                "valid": false,
+                "error": "property null validation failed: wrong type: expected null, got string"
+            }, {
+                "description": "error reports 'boolean' as expected",
+                "data": { "boolean": "foobar" },
+                "valid": false,
+                "error": "property boolean validation failed: wrong type: expected boolean, got string"
+            }, {
+                "description": "error reports 'object' as expected",
+                "data": { "object": "foobar" },
+                "valid": false,
+                "error": "property object validation failed: wrong type: expected object, got string"
+            }, {
+                "description": "error reports 'array' as expected",
+                "data": { "array": "foobar" },
+                "valid": false,
+                "error": "property array validation failed: wrong type: expected array, got string"
+            }, {
+                "description": "error reports 'string' as expected",
+                "data": { "string": true },
+                "valid": false,
+                "error": "property string validation failed: wrong type: expected string, got boolean"
+            }
+        ]
+    },{
+        "description": "types encountered",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "integer":  { "type": "integer" },
+                "string":   { "type": "string" }
+            }
+        },
+        "tests": [
+            {
+                "description": "error reports 'integer' as encountered",
+                "data": { "string": 1 },
+                "valid": false,
+                "error": "property string validation failed: wrong type: expected string, got integer"
+            }, {
+                "description": "error reports 'number' as encountered",
+                "data": { "string": 1.5 },
+                "valid": false,
+                "error": "property string validation failed: wrong type: expected string, got number"
+            }, {
+                "description": "error reports 'null' as encountered",
+                "data": { "string": null },
+                "valid": false,
+                "error": "property string validation failed: wrong type: expected string, got null"
+            }, {
+                "description": "error reports 'boolean' as encountered",
+                "data": { "string": true },
+                "valid": false,
+                "error": "property string validation failed: wrong type: expected string, got boolean"
+            }, {
+                "description": "error reports 'object' as encountered",
+                "data": { "string": {} },
+                "valid": false,
+                "error": "property string validation failed: wrong type: expected string, got object"
+            }, {
+                "description": "error reports 'array' as encountered",
+                "data": { "string": [] },
+                "valid": false,
+                "error": "property string validation failed: wrong type: expected string, got array"
+            }, {
+                "description": "error reports 'string' as encountered",
+                "data": { "integer": "foobar" },
+                "valid": false,
+                "error": "property integer validation failed: wrong type: expected integer, got string"
+            }
+        ]
+    }
+]
