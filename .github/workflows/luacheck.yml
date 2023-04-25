@@ -1,0 +1,31 @@
+name: Luacheck
+
+concurrency:
+  # for PR's cancel the running task, if another commit is pushed
+  group: ${{ github.workflow }} ${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # build on PR and push-to-master. This works for short-lived branches, and saves
+  # CPU cycles on duplicated tests.
+  # For long-lived branches that diverge, you'll want to run on all pushes, not
+  # just on push-to-master.
+  pull_request: {}
+  push:
+    branches:
+    - master
+
+jobs:
+
+  luacheck:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: leafo/gh-actions-lua@v9
+      - uses: leafo/gh-actions-luarocks@v4
+      - name: Lint rockspecs
+        run: |
+          for i in $(find . -type f -name "*.rockspec"); do echo $i; luarocks lint $i || exit 1; done
+      - name: Luacheck
+        uses: lunarmodules/luacheck@v0

@@ -1,4 +1,8 @@
-[![Build Status](https://travis-ci.com/Tieske/lua-resty-ljsonschema.svg?branch=master)](https://travis-ci.com/Tieske/lua-resty-ljsonschema)
+[![Unix build](https://img.shields.io/github/actions/workflow/status/Tieske/lua-resty-ljsonschema/unix_build.yml?branch=master&label=Unix%20build&logo=linux)](https://github.com/Tieske/lua-resty-ljsonschema/actions)
+[![Luacheck](https://github.com/Tieske/lua-resty-ljsonschema/workflows/Luacheck/badge.svg)](https://github.com/Tieske/lua-resty-ljsonschema/actions)
+[![SemVer](https://img.shields.io/github/v/tag/Tieske/lua-resty-ljsonschema?color=brightgreen&label=SemVer&logo=semver&sort=semver)](#history)
+[![Licence](http://img.shields.io/badge/Licence-MIT-brightgreen.svg)](LICENSE)
+
 
 ljsonschema: JSON schema validator
 ==================================
@@ -27,7 +31,7 @@ Running the tests also requires the Busted test framework:
     git submodule update --init --recursive
     luarocks install net-url
     luarocks install busted
-    ./rbusted -v -o gtest
+    busted
 
 
 Usage

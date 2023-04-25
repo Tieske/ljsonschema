@@ -23,18 +23,9 @@ ignore = {
 
 
 exclude_files = {
-    "openresty-*/**/*.lua",
-    "luarocks-*/**/*.lua",
+    ".install/**",
+    ".luarocks/**",
 }
-
-
---files["kong/plugins/ldap-auth/*.lua"] = {
---    read_globals = {
---        "bit.mod",
---        "string.pack",
---        "string.unpack",
---    },
---}
 
 
 files["spec/**/*.lua"] = {
