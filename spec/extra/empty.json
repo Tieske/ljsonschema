@@ -12,7 +12,7 @@
         "description": "an empty object is not an array",
         "data": {},
         "valid": false,
-        "error": "wrong type: expected array, got table"
+        "error": "wrong type: expected array, got object"
       },
       {
         "description": "a non-empty array is an array",
@@ -23,7 +23,7 @@
         "description": "a non-empty object is not an array",
         "data": {"answer": 42},
         "valid": false,
-        "error": "wrong type: expected array, got table"
+        "error": "wrong type: expected array, got object"
       }
     ]
   },
@@ -35,7 +35,7 @@
         "description": "an empty array is not an object",
         "data": [],
         "valid": false,
-        "error": "wrong type: expected object, got table"
+        "error": "wrong type: expected object, got array"
       },
       {
         "description": "an empty object is an object",
@@ -46,7 +46,7 @@
         "description": "a non-empty array is not an object",
         "data": ["foo", "bar"],
         "valid": false,
-        "error": "wrong type: expected object, got table"
+        "error": "wrong type: expected object, got array"
       },
       {
         "description": "a non-empty object is an object",

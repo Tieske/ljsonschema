@@ -47,7 +47,7 @@
                 "description": "mismatch array",
                 "data": [1, "foo"],
                 "valid": false,
-                "error": "failed to validate item 1: wrong type: expected string, got number"
+                "error": "failed to validate item 1: wrong type: expected string, got integer"
             }
         ]
     },

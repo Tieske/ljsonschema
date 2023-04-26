@@ -252,7 +252,7 @@ local function tablekind_slow(t)
   -- not empty, check if the number of items is the same as the length
   local items = 0
   for k, v in pairs(t) do items = items + 1 end
-  if items == #t then
+  if items == length then
     return 2 -- array
   else
     return 0 -- mixed array/object
@@ -267,6 +267,32 @@ function validatorlib.tablekind(t, array_mt)
   end
   -- non-deterministic, try old-fashioned slow Lua way
   return tablekind_slow(t)
+end
+
+
+function validatorlib.valuekind(v, array_mt, null)
+  local t = type(v)
+  if t == "table" then
+    if validatorlib.tablekind(v, array_mt) < 2 then  -- detect object or array
+      return "object"
+    else
+      return "array"
+    end
+  end
+
+  if t == "number" then
+    if math.floor(v) == v then  -- is it an integer?
+      return "integer"
+    else
+      return "number"
+    end
+  end
+
+  if v == null then
+    return "null"
+  end
+
+  return t
 end
 
 
@@ -357,6 +383,7 @@ generate_validator = function(ctx, schema)
     ctx:libfunc('type'), ctx:param(1)))
   local datakind = ctx:localvar(sformat('%s == "table" and %s(%s, %s)',
     datatype, ctx:libfunc('lib.tablekind'), ctx:param(1), "custom.array_mt"))
+  local valuekind = sformat("%s(%s, %s, %s)", ctx:libfunc('lib.valuekind'), ctx:param(1), "custom.array_mt", "custom.null")
 
   -- check on coercions required
   local coerce_boolean, coerce_number
@@ -396,7 +423,7 @@ generate_validator = function(ctx, schema)
   if tt == 'string' then
     -- only one type allowed
     ctx:stmt('if not (', typeexpr(ctx, schema.type, datatype, datakind), ') then')
-    ctx:stmt(sformat('  return false, "wrong type: expected %s, got " .. %s', schema.type, datatype))
+    ctx:stmt(sformat('  return false, "wrong type: expected %s, got " .. %s', schema.type, valuekind))
     ctx:stmt('end')
   elseif tt == 'table' then
     -- multiple types allowed
@@ -405,7 +432,7 @@ generate_validator = function(ctx, schema)
       ctx:stmt('  ', typeexpr(ctx, t, datatype, datakind), ' or')
     end
     ctx:stmt('false) then') -- close the last "or" statement
-    ctx:stmt(sformat('  return false, "wrong type: expected one of %s, got " .. %s', table.concat(schema.type, ', '),  datatype))
+    ctx:stmt(sformat('  return false, "wrong type: expected one of %s, got " .. %s', table.concat(schema.type, ', '),  valuekind))
     ctx:stmt('end')
   elseif tt ~= 'nil' then error('invalid "type" type: got ' .. tt) end
 

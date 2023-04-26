@@ -41,7 +41,7 @@
                 "description": "mismatch base schema",
                 "data": 3,
                 "valid": false,
-                "error": "wrong type: expected string, got number"
+                "error": "wrong type: expected string, got integer"
             },
             {
                 "description": "both anyOf invalid",
@@ -74,7 +74,7 @@
                 "description": "neither anyOf valid (complex)",
                 "data": {"foo": 2, "bar": "quux"},
                 "valid": false,
-                "error": "object needs one of the following rectifications: 1) property bar validation failed: wrong type: expected integer, got string; 2) property foo validation failed: wrong type: expected string, got number"
+                "error": "object needs one of the following rectifications: 1) property bar validation failed: wrong type: expected integer, got string; 2) property foo validation failed: wrong type: expected string, got integer"
             }
         ]
     }

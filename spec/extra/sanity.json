@@ -64,7 +64,7 @@
         "description": "incorrect type is invalid",
         "data": ["foo", 42],
         "valid": false,
-        "error": "wrong type: expected object, got table"
+        "error": "wrong type: expected object, got array"
       }
     ]
   },

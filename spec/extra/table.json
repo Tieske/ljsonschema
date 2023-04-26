@@ -27,7 +27,7 @@
                 "description": "number",
                 "data": 42,
                 "valid": false,
-                "error": "wrong type: expected table, got number"
+                "error": "wrong type: expected table, got integer"
             }
         ]
     },
