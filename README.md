@@ -212,10 +212,17 @@ at this time:
 * Unicode strings are considered as a stream of bytes (so length checks might
   not behave as expected)
 
+Versioning
+----------
+
+This library is versioned based on Semantic Versioning ([SemVer](https://semver.org/)).
+The scope of what is covered by the version number excludes:
+- error messages; the text of the messages can change, unless specifically documented.
+
 History
 -------
 
-Versioning is strictly based on Semantic Versioning ([SemVer](https://semver.org/)).
+For version behaviour and scoping see [Versioning](#versioning).
 
 #### releasing new versions
 - update the changelog below
