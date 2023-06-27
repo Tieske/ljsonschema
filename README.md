@@ -234,7 +234,7 @@ For version behaviour and scoping see [Versioning](#versioning).
 - push the commit and the tag; `git push && git push --tags`
 - upload rockspec; `luarocks upload rockspecs/lua-resty-ljsonschema-X.Y.Z-1.rockspec --api-key=abcdef`
 
-### unreleased
+### 1.1.5 (27-Jun-2023)
 - fix: using default Lua `tostring` on numbers when generating code can loose
   precision. Implemented a non-lossy function.
   ([#21](https://github.com/Tieske/lua-resty-ljsonschema/pull/21))
