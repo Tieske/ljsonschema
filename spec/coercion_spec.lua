@@ -118,5 +118,4 @@ describe("[string coercion]", function()
 
   end)
 
-
 end)
