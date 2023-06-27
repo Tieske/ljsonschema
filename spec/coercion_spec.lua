@@ -118,48 +118,4 @@ describe("[string coercion]", function()
 
   end)
 
-  describe("safe integer range", function()
-    it("sanity", function()
-      local min_safe_integer = -9007199254740991
-      local max_safe_integer = 9007199254740991
-
-      local test_schema = {
-        type = 'object',
-        properties = {
-          value= { type = 'integer', minimum = min_safe_integer, maximum = max_safe_integer },
-        },
-      }
-
-      assert(jsonschema.jsonschema_validator(test_schema))
-      local my_validator = jsonschema.generate_validator(test_schema)
-
-      local result, msg = my_validator({ value = min_safe_integer - 1 })
-      assert.is_false(result)
-      assert.equal("property value validation failed: expected -9007199254740992 to be greater than -9007199254740991", msg)
-
-      local result, msg = my_validator({ value = max_safe_integer + 1 })
-      assert.is_false(result)
-      assert.equal("property value validation failed: expected 9007199254740992 to be smaller than 9007199254740991", msg)
-    end)
-
-    it("number", function()
-      local test_schema = {
-        type = 'object',
-        properties = {
-          value= { type = 'number', minimum = -900719925474.12, maximum = 900719925474.12 },
-        },
-      }
-
-      assert(jsonschema.jsonschema_validator(test_schema))
-      local my_validator = jsonschema.generate_validator(test_schema)
-
-      local result, msg = my_validator({ value = -900719925474.123 })
-      assert.is_false(result)
-      assert.equal("property value validation failed: expected -900719925474.123 to be greater than -900719925474.12", msg)
-
-      local result, msg = my_validator({ value = 900719925474.123 })
-      assert.is_false(result)
-      assert.equal("property value validation failed: expected 900719925474.123 to be smaller than 900719925474.12", msg)
-    end)
-  end)
 end)

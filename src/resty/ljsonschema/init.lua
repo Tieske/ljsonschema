@@ -172,41 +172,6 @@ local function debug_dump(self, code, prefix, err)
   end
 end
 
-local format_number = function(value)
-  if type(value) ~= "number" then
-    return value
-  end
-
-  -- We start at 6 to avoid exponent notation for small numbers, e.g. 10.0 -> 1e+01
-  -- We don't go straight to 17 because it might be ugly, e.g. 3.14 -> 3.1400000000000001
-  -- Be careful with floating point numbers that are also integers.
-  for p = 6, 17 do
-    local s = sformat("%."..p.."g", value)
-    if tonumber(s) == value then
-      return s
-    end
-  end
-  -- 17 digits should have been enough to round trip any non-NaN, non-infinite double.
-  -- See https://stackoverflow.com/a/21162120 and DBL_DECIMAL_DIG in float.h
-  error("impossible")
-end
-
-
-local fn_format_number = [[
-format_number = function(value)
-  if type(value) ~= "number" then
-    return value
-  end
-  for p = 6, 17 do
-    local s = string.format("%."..p.."g", value)
-    if tonumber(s) == value then
-      return s
-    end
-  end
-  error("impossible")
-end
-]]
-
 function codectx_mt:as_func(name, ...)
   local chunk = self:as_string()
   local loaded_chunk, err = load(chunk, 'jsonschema:' .. (name or 'anonymous'))
@@ -330,6 +295,40 @@ function validatorlib.valuekind(v, array_mt, null)
 
   return t
 end
+
+-- The default Lua tostring() function will start using exponential notation
+-- for numbers too early, which means it will be loosing precision. This happens
+-- both floats and ints.
+-- For example:
+--   local x = 9007199254740991
+--   assert(tonumber(tostring(x)) == x))))  -- fails in some cases
+--
+-- We want to avoid that, so we use a custom function that
+-- will try to find a representation that will round trip back to the original.
+--
+-- The "%a" formatter is not used because it is a C99 feature, and it is not
+-- supported by all C compilers (and because it is very ugly).
+--
+-- The original is taken from Pallene: https://github.com/pallene-lang/pallene/blob/b1c0c87b749a3a9e4ebfd500a1a08af53492b8fc/src/pallene/C.lua#L56
+function validatorlib.format_number(value)
+  if type(value) ~= "number" then
+    return value
+  end
+
+  -- We start at 6 to avoid exponent notation for small numbers, e.g. 10.0 -> 1e+01
+  -- We don't go straight to 17 because it might be ugly, e.g. 3.14 -> 3.1400000000000001
+  -- Be careful with floating point numbers that are also integers.
+  for p = 6, 17 do
+    local s = sformat("%."..p.."g", value)
+    if tonumber(s) == value then
+      return s
+    end
+  end
+  -- 17 digits should have been enough to round trip any non-NaN, non-infinite double.
+  -- See https://stackoverflow.com/a/21162120 and DBL_DECIMAL_DIG in float.h
+  error("impossible")
+end
+local format_number = validatorlib.format_number
 
 
 -- used for unique items in arrays (not fast at all)
@@ -863,8 +862,8 @@ generate_validator = function(ctx, schema)
       local op = schema.exclusiveMinimum and '<=' or '<'
       local msg = schema.exclusiveMinimum and 'sctrictly greater' or 'greater'
       ctx:stmt(sformat('  if %s %s %s then', format_number(ctx:param(1)), op, format_number(schema.minimum)))
-      ctx:stmt(sformat('    return false, %s("expected %%s to be %s than %s", format_number(%s))',
-                       ctx:libfunc('string.format'), msg, format_number(schema.minimum), ctx:param(1)))
+      ctx:stmt(sformat('    return false, %s("expected %%s to be %s than %s", %s(%s))',
+                       ctx:libfunc('string.format'), msg, format_number(schema.minimum), ctx:libfunc('lib.format_number'), ctx:param(1)))
       ctx:stmt(        '  end')
     end
 
@@ -872,8 +871,8 @@ generate_validator = function(ctx, schema)
       local op = schema.exclusiveMaximum and '>=' or '>'
       local msg = schema.exclusiveMaximum and 'sctrictly smaller' or 'smaller'
       ctx:stmt(sformat('  if %s %s %s then', format_number(ctx:param(1)), op, format_number(schema.maximum)))
-      ctx:stmt(sformat('    return false, %s("expected %%s to be %s than %s", format_number(%s))',
-                       ctx:libfunc('string.format'), msg, format_number(schema.maximum), ctx:param(1)))
+      ctx:stmt(sformat('    return false, %s("expected %%s to be %s than %s", %s(%s))',
+                       ctx:libfunc('string.format'), msg, format_number(schema.maximum), ctx:libfunc('lib.format_number'), ctx:param(1)))
       ctx:stmt(        '  end')
     end
 
@@ -999,7 +998,6 @@ local function generate_main_validator_ctx(schema, options)
   --    or for dependency injection)
   ctx:preface('local uservalues, lib, custom = ...')
   ctx:preface('local locals = {}')
-  ctx:preface(fn_format_number)
   ctx:stmt('return ', ctx:validator(nil, schema))
   return ctx
 end
