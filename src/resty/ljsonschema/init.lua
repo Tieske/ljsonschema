@@ -34,6 +34,19 @@ do
   end
 end
 
+local luajit_isarray
+local luajit_nkeys
+do
+  local ok, mod = pcall(require, "table.isarray")
+  if ok then
+    luajit_isarray = mod
+  end
+
+  ok, mod = pcall(require, "table.nkeys")
+  if ok then
+    luajit_nkeys = mod
+  end
+end
 
 --
 -- Code generation
@@ -257,6 +270,21 @@ local function tablekind_slow(t)
     return 2 -- array
   else
     return 0 -- mixed array/object
+  end
+end
+
+
+-- If OpenResty's luajit table functions are availble to us, we can
+-- use them to implement tablekind_slow() with better performance.
+--
+-- See:
+--   - https://github.com/openresty/luajit2#tableisarray
+--   - https://github.com/openresty/luajit2#tablenkeys
+if luajit_isarray and luajit_nkeys then
+  tablekind_slow = function(t)
+    return (luajit_nkeys(t) == 0 and 1)
+        or (luajit_isarray(t) and 2)
+        or 0
   end
 end
 
