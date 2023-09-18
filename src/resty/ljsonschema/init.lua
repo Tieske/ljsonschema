@@ -1004,9 +1004,13 @@ end
 
 local _M = {
   generate_validator = function(schema, custom)
+    local array_mt = default_array_mt
+    if custom and custom.array_mt ~= nil then
+      array_mt = custom.array_mt
+    end
     local customlib = {
       null = custom and custom.null or default_null,
-      array_mt = custom and custom.array_mt or default_array_mt,
+      array_mt = array_mt,
       match_pattern = custom and custom.match_pattern or default_match_pattern
     }
     local name = custom and custom.name
