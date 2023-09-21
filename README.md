@@ -241,6 +241,14 @@ For version behaviour and scoping see [Versioning](#versioning).
 - push the commit and the tag; `git push && git push --tags`
 - upload rockspec; `luarocks upload rockspecs/lua-resty-ljsonschema-X.Y.Z-1.rockspec --api-key=abcdef`
 
+### 1.1.6 (21-Sep-2023)
+- fix: properly check custom.array_mt
+  ([#22](https://github.com/Tieske/lua-resty-ljsonschema/pull/22))
+- improvement: use openresty table functions if available (`isarray` and `nkeys`)
+  ([#22](https://github.com/Tieske/lua-resty-ljsonschema/pull/22))
+- fix: add lua-cjson to the rockspec since it is required
+  ([#23](https://github.com/Tieske/lua-resty-ljsonschema/pull/23))
+
 ### 1.1.5 (27-Jun-2023)
 - fix: using default Lua `tostring` on numbers when generating code can loose
   precision. Implemented a non-lossy function.
