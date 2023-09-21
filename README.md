@@ -195,6 +195,13 @@ local v = jsonschema.generate_validator(schema, {
         return ... -- Lua table
     end,
 
+    -- There are cases where incoming data will always be strings. For example
+    -- when validating http-headers or query arguments.
+    -- For these cases there is an option `coercion`. If you set this flag then
+    -- a string value targetting a type of `boolean`, `number`, or `integer` will be
+    -- attempted coerced to the proper type. After which the validation will occur.
+    coercion = false,
+
     -- name when generating the validator function, it might ease debugging as
     -- as it will appear in stack traces.
     name = "myschema",
