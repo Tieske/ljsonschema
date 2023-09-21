@@ -155,16 +155,8 @@ local metaschema = [[
 
 
 
-local cjson = require "cjson"
-
-
--- test decode with array_mt, to not change global settings
-local t = cjson.decode("[]")
-local status = getmetatable(t) == cjson.array_mt
-
+local cjson = require("cjson").new()
 cjson.decode_array_with_array_mt(true)
-local schema = cjson.decode(metaschema)
-cjson.decode_array_with_array_mt(status)  -- restore old state
 
-return schema
+return cjson.decode(metaschema)
 

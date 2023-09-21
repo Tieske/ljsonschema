@@ -28,6 +28,7 @@ description = {
 dependencies = {
    "lua >= 5.1",
    "net-url",
+   "lua-cjson",
 }
 
 build = {
