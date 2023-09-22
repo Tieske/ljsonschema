@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>ljsonschema docs</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>resty.ljsonschema</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Versioning">Versioning </a></li>
+<li><a href="#Version_history">Version history </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/01-introduction.md.html">1. Introduction</a></li>
+  <li><a href="../topics/02-format-attributes.md.html">2. Format attributes</a></li>
+  <li><strong>CHANGELOG</strong></li>
+  <li><a href="../topics/LICENSE.md.html">MIT License</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/resty.ljsonschema.html">resty.ljsonschema</a></li>
+  <li><a href="../modules/resty.ljsonschema.metaschema.html">resty.ljsonschema.metaschema</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/coercion.lua.html">coercion.lua</a></li>
+  <li><a href="../examples/format_attributes.lua.html">format_attributes.lua</a></li>
+  <li><a href="../examples/getting_started.lua.html">getting_started.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>CHANGELOG</h1>
+
+<p><a name="Versioning"></a></p>
+<h2>Versioning</h2>
+
+<p>This library is versioned based on Semantic Versioning (<a href="https://semver.org/">SemVer</a>).</p>
+
+<h4>Version scoping</h4>
+
+<p>The scope of what is covered by the version number excludes:</p>
+
+<ul>
+    <li>error messages; the text of the messages can change, unless specifically documented.</li>
+</ul>
+
+<h4>Releasing new versions</h4>
+
+<ul>
+    <li>update the changelog below</li>
+    <li>check copyright years in <a href="../topics/LICENSE.md.html#">LICENSE.md</a> and in the module level doc comments in <code>init.lua</code></li>
+    <li>create new rockspec; <code>cp lua-resty-ljsonschema-scm-1.rockspec rockspecs/lua-resty-ljsonschema-X.Y.Z-1.rockspec</code></li>
+    <li>edit the rockspec to match the new release</li>
+    <li>render the documentation; <code>ldoc .</code></li>
+    <li>commit changes as <code>release X.Y.Z</code>, using <code>git add rockspecs/ &amp;&amp; git commit -a</code></li>
+    <li>tag the commit; <code>git tag X.Y.Z</code></li>
+    <li>push the commit and the tag; <code>git push &amp;&amp; git push --tags</code></li>
+    <li>upload rockspec; <code>luarocks upload rockspecs/lua-resty-ljsonschema-X.Y.Z-1.rockspec --api-key=abcdef</code></li>
+</ul>
+
+<p><a name="Version_history"></a></p>
+<h2>Version history</h2>
+
+<h3>1.1.6 (21-Sep-2023)</h3>
+
+<ul>
+    <li>fix: properly check custom.array_mt
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/22">#22</a>)</li>
+    <li>improvement: use openresty table functions if available (<code>isarray</code> and <code>nkeys</code>)
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/22">#22</a>)</li>
+    <li>fix: add lua-cjson to the rockspec since it is required
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/23">#23</a>)</li>
+</ul>
+
+<h3>1.1.5 (27-Jun-2023)</h3>
+
+<ul>
+    <li>fix: using default Lua <a href="https://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a> on numbers when generating code can loose
+    precision. Implemented a non-lossy function.
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/21">#21</a>)</li>
+</ul>
+
+<h3>1.1.4 (25-Apr-2023)</h3>
+
+<ul>
+    <li>fix: typo in error message
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/16">#16</a>)</li>
+    <li>fix: update reported types in error messages (eg. 'userdata' instead of 'null')
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/17">#17</a>)</li>
+    <li>ci: switch CI to Github Actions
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/18">#18</a>)</li>
+    <li>ci: add plain Lua to the version matrix
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/19">#19</a>)</li>
+</ul>
+
+<h3>1.1.3 (8-Dec-2022)</h3>
+
+<ul>
+    <li>fix: reference properties can start with an "_"
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/15">#15</a>)</li>
+</ul>
+
+<h3>1.1.2 (30-Apr-2021)</h3>
+
+<ul>
+    <li>fix: fixes an issue where properties called "id" were mistaken for schema ids
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/13">#13</a>)</li>
+</ul>
+
+<h3>1.1.1 (28-Oct-2020)</h3>
+
+<ul>
+    <li>fix: fixes an error in the <code>maxItems</code> error message
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/7">#7</a>)</li>
+    <li>fix: date-time validation would error out on bad input
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/10">#10</a>)</li>
+    <li>improvement: anyOf failures now list what failed
+    (<a href="https://github.com/Tieske/lua-resty-ljsonschema/pull/9">#9</a>)</li>
+</ul>
+
+<h3>1.1.0 (18-aug-2020)</h3>
+
+<ul>
+    <li>fix: if a <code>schema.pattern</code> clause contained a <code>%</code> then the generated code
+    for error messages (invoking <a href="https://www.lua.org/manual/5.1/manual.html#pdf-string.format">string.format</a>) would fail because it tried
+    to substitute it (assuming it to be a format specifier). <code>%</code> is now properly
+    escaped.</li>
+    <li>feat: add <code>date</code>, <code>date-time</code>, and <code>time</code> Semantic validation for "format"
+    attribute. Validation follows the RFC3339 specification sections
+    [5.6][rfc3339-5.6] and [5.7][rfc3339-5.7] for dates and times.</li>
+</ul>
+
+<h3>1.0 (15-may-2020)</h3>
+
+<ul>
+    <li>fix: using a string-key containing only numbers would fail because it was
+    automatically converted to a number while looking up references.</li>
+</ul>
+
+<h3>0.3 (18-dec-2019)</h3>
+
+<ul>
+    <li>fix: use a table instead of local variables to work around the limitation of
+    a maximum of 200 local variables, which is being hit with complex schemas.</li>
+</ul>
+
+<h3>0.2 (21-jul-2019)</h3>
+
+<ul>
+    <li>feat: added automatic coercion option</li>
+    <li>refactor: remove all coroutine calls (by @davidor)</li>
+    <li>feat: add function to validate schemas against the jsonschema meta-schema</li>
+</ul>
+
+<h3>0.1 (13-jun-2019)</h3>
+
+<ul>
+    <li>fix: use PCRE regex if available instead of Lua patterns (better jsonschema
+    compliance)</li>
+    <li>fix: deal with broken coroutine override in OpenResty (by @jdesgats)</li>
+    <li>move array/object validation over to OpenResty based CJSON implementation
+    (using the <code>array_mt</code>)</li>
+    <li>fix: schema with only 'required' was not validated at all</li>
+    <li>updated testsuite to use Busted</li>
+    <li>fix: quoting/escaping</li>
+</ul>
+
+<h3>7-Jun-2019 Forked from https://github.com/jdesgats/ljsonschema</h3>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-09-22 14:30:49 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

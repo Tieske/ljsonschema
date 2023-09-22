@@ -45,11 +45,7 @@ jobs:
     - uses: leafo/gh-actions-luarocks@v4
 
     - name: dependencies
-      run: |
-        luarocks make
-        luarocks install lua-cjson
-        luarocks install busted
+      run: make dev
 
     - name: test
-      run: |
-        busted --lua=lua
+      run: busted --lua=lua

@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>ljsonschema docs</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>resty.ljsonschema</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#1_1_Differences_with_JSONSchema">1.1 Differences with JSONSchema </a></li>
+<li><a href="#1_2_Handling_JSON">1.2 Handling JSON </a></li>
+<li><a href="#1_2_1_Null_values">1.2.1 Null values </a></li>
+<li><a href="#1_2_2_Array_vs_Object">1.2.2 Array vs Object </a></li>
+<li><a href="#1_3_Customizing_behaviour">1.3 Customizing behaviour </a></li>
+<li><a href="#1_4_Automatic_coercion">1.4 Automatic coercion </a></li>
+<li><a href="#1_5_Installation">1.5 Installation </a></li>
+<li><a href="#1_6_Development">1.6 Development </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul class="">
+  <li><strong>1. Introduction</strong></li>
+  <li><a href="../topics/02-format-attributes.md.html">2. Format attributes</a></li>
+  <li><a href="../topics/CHANGELOG.md.html">CHANGELOG</a></li>
+  <li><a href="../topics/LICENSE.md.html">MIT License</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/resty.ljsonschema.html">resty.ljsonschema</a></li>
+  <li><a href="../modules/resty.ljsonschema.metaschema.html">resty.ljsonschema.metaschema</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/coercion.lua.html">coercion.lua</a></li>
+  <li><a href="../examples/format_attributes.lua.html">format_attributes.lua</a></li>
+  <li><a href="../examples/getting_started.lua.html">getting_started.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>1. Introduction</h1>
+
+<p>This library provides a JSON schema draft 4 validator for OpenResty and Lua 5.2+.</p>
+
+<p>It has been designed to validate incoming data for HTTP APIs so it is decently
+fast: it works by transforming the given schema into a pure Lua function
+on-the-fly.</p>
+
+<p>This is an updated version of <a href="https://github.com/jdesgats/ljsonschema">ljsonschema</a>
+by @jdesgats.</p>
+
+
+<p><a name="1_1_Differences_with_JSONSchema"></a></p>
+<h2>1.1 Differences with JSONSchema</h2>
+
+<p>Due to the nature of the Lua language, the full JSON schema support is
+difficult to reach. Some of the limitations can be solved using customizing the
+behaviour, but some features are not supported (correctly) at this time:</p>
+
+<ul>
+    <li>Unicode strings are considered as a stream of bytes (so length checks might
+    not behave as expected)</li>
+</ul>
+
+
+<p><a name="1_2_Handling_JSON"></a></p>
+<h2>1.2 Handling JSON</h2>
+
+<p>When decoding JSON into a Lua table there are several things that require some
+extra attention. The default is to use <code>lua-cjson</code> and its implementation of the
+values below.</p>
+
+
+<p><a name="1_2_1_Null_values"></a></p>
+<h2>1.2.1 Null values</h2>
+
+<p>Lua doesn't have an explicit <code>null</code> value. In JSON <code>null</code> essentially means, this
+key exists, but it has no value. Whereas the Lua equivalent <code>nil</code> cannot distinguish
+between the key non existing and the key having no value.</p>
+
+<p>As such a sentinel value must be defined that is unique and can be used to represent
+the JSON-null value.</p>
+
+
+<p><a name="1_2_2_Array_vs_Object"></a></p>
+<h2>1.2.2 Array vs Object</h2>
+
+<p>Lua tables are more versatile than the JSON Array and JSON Object types, and hence
+a table is used to represent both JSON types. This can however create ambiguity when
+validating. When decoding JSON, both an empty array and an empty object will be
+decoded to an empty Lua table. So it cannot be properly validated as being either one.</p>
+
+<p>For this purpose a meta-table (<code>array_mt</code>) is defined and should be attached to arrays.</p>
+
+
+<p><a name="1_3_Customizing_behaviour"></a></p>
+<h2>1.3 Customizing behaviour</h2>
+
+<p>Some advanced features of JSON Schema are not possible to implement using the
+standard library and require third party libraries to work.</p>
+
+<p>In order to not force one particular library, and not bloat this library for
+the simple schemas, extension points are provided. For details see the
+<code>generate_validator</code> method and its options.</p>
+
+
+<p><a name="1_4_Automatic_coercion"></a></p>
+<h2>1.4 Automatic coercion</h2>
+
+<p>When validating properties that are not json, the input usually always is a
+string value. For example a query string or header value.</p>
+
+<p>For these cases there is an option <code>coercion</code>. If you set this flag then
+a string value targetting a type of <code>boolean</code>, <code>number</code>, or <code>integer</code> will be
+attempted coerced to the proper type. After which the validation will occur.</p>
+
+
+<p><a name="1_5_Installation"></a></p>
+<h2>1.5 Installation</h2>
+
+<p>It is aimed at use with <code>lua-cjson</code>. Since it uses the cjson
+semantics for arrays (<a href="https://github.com/openresty/lua-cjson#decode_array_with_array_mt"><code>array_mt</code></a>)</p>
+
+<p>The preferred way to install this library is to use Luarocks:</p>
+
+
+<pre>
+luarocks install lua-resty-ljsonschema
+</pre>
+
+<p>To install it from the repo use the <code>Makefile</code>`:</p>
+
+
+<pre>
+make install
+</pre>
+
+<p><a name="1_6_Development"></a></p>
+<h2>1.6 Development</h2>
+
+<p>Running the tests requires the Busted test framework. The test suite is based of a
+standard test suite for JSONschema and is included as a Git submodule.</p>
+
+<p>To set up the repo for testing use the <code>Makefile</code>. To list the available targets do:</p>
+
+
+<pre>
+make
+</pre>
+
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-09-22 14:30:49 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

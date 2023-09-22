@@ -1,3 +1,11 @@
+--- This module does something.
+--
+-- Explain some basics, or the design.
+--
+-- @copyright Copyright (c) 2017 Julien Desgats, 2019-2023 Thijs Schreijer
+-- @author Julien Desgats, Thijs Schreijer
+-- @license MIT, see `LICENSE.md`.
+
 local store = require 'resty.ljsonschema.store'
 local metaschema = require 'resty.ljsonschema.metaschema'
 local tostring = tostring
@@ -1031,6 +1039,31 @@ local function generate_main_validator_ctx(schema, options)
 end
 
 local _M = {
+  --- Generate a validator function from a JSONschema.
+  -- This function will generate a Lua function that validates according to the given JSONschema.
+  -- @tparam table schema The JSONschema to validate
+  -- @tparam[opt] table custom Options table with the following options:
+  -- @param[opt=`cjson.null`] custom.null a value used to check null elements in the validated documents
+  -- @tparam[opt=`cjson.array_mt`] table|false custom.array_mt a meta-table used to check if a table is
+  -- an array. To fall-back on Lua detection of table contents set the value to a boolean `false`
+  -- @tparam[opt=`ngx.re.find`] function custom.match_pattern function called to match patterns.
+  -- The JSON schema specification mentions that the validator should obey
+  -- the ECMA-262 specification but Lua pattern matching library is much more
+  -- primitive than that. Users might want to use PCRE or other more powerful
+  -- libraries here. The function signature should be: `function(string, patt)`
+  -- @tparam[opt] function custom.external_resolver this will be called to resolve external schemas. It is called with the full
+  -- url to fetch (without the fragment part) and must return the
+  -- corresponding schema as a Lua table.
+  -- There is no default implementation: this function must be provided if
+  -- resolving external schemas is required. The function signature should be: `function(url)`
+  -- @tparam[opt=false] bool custom.coercion There are cases where incoming data will always be strings. For example
+  -- when validating http-headers or query arguments.
+  -- For these cases there is this option `coercion`. If you set this flag then
+  -- a string value targetting a type of `boolean`, `number`, or `integer` will be
+  -- attempted coerced to the proper type. After which the validation will occur.
+  -- @tparam[opt="anonymous"] string custom.name the name assigned to the validator function, it might ease debugging as
+  -- as it will appear in stack traces.
+  -- @return function The validator function, or `nil + error` if the code couldn't be generated
   generate_validator = function(schema, custom)
     local array_mt = default_array_mt
     if custom and custom.array_mt ~= nil then
@@ -1044,12 +1077,27 @@ local _M = {
     local name = custom and custom.name
     return generate_main_validator_ctx(schema, custom):as_func(name, validatorlib, customlib)
   end,
-  -- debug only
+
+  --- Generate a validator as code (string).
+  -- This function can be used to debug this library. It is identical to `generate_validator`, except it will
+  -- return the generated code as a string instead of a compiled function.
+  -- @tparam table schema The JSONschema to validate
+  -- @tparam[opt] table custom Options table to customize the validator, see `generate_validator` for the options.
+  -- @return string The validator code, or `nil + error` if the code couldn't be generated
   generate_validator_code = function(schema, custom)
     return generate_main_validator_ctx(schema, custom):as_string()
   end,
 }
 
+--- Meta-schema validator.
+-- Validates a schema to be a valid JSONschema Draft 4 schema.
+--
+-- **Note**: this function assumes arrays to have been marked with the `array_mt` metatable.
+-- If you define your schema's in Lua then you should generate your own, see the example
+-- at `resty.ljsonschema.metaschema`.
+-- @function jsonschema_validator
+-- @tparam table schema The JSONschema to validate
+-- @return boolean `true` if the schema is valid, `false + error` otherwise
 _M.jsonschema_validator = assert(_M.generate_validator(metaschema))
 
 return _M
