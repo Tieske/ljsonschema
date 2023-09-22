@@ -1,4 +1,30 @@
--- returns the metaschema for draft 4
+--- Metaschema for JSON Schema Draft 4.
+-- This module returns the metaschema for draft 4 as a Lua table.
+-- @usage
+-- -- create a validator for the metaschema which doesn't require array_mt.
+--
+-- local metaschema = require("resty.ljsonschema.metaschema")
+-- local schema_as_lua_table_validator = jsonschema.generate_validator(metaschema, {
+--   array_mt = false,
+-- })
+--
+-- -- Define a JSONschema in a Lua table
+-- local schema = {
+--   type = "object",
+--   properties = {
+--     key = {
+--       oneOf = {   -- NOTE: this is an array, it would fail with `jsonschema.jsonschema_validator`.
+--         { type = "string" },
+--         { type = "integer" },
+--       }
+--     }
+--   }
+-- }
+--
+-- -- Validate the schema against the metaschema to check it is a valid Draft 4 schema
+-- assert(schema_as_lua_table_validator(schema))
+
+
 
 local metaschema = [[
 {

@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>ljsonschema docs</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>resty.ljsonschema</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>resty.ljsonschema</strong></li>
+  <li><a href="../modules/resty.ljsonschema.metaschema.html">resty.ljsonschema.metaschema</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/01-introduction.md.html">1. Introduction</a></li>
+  <li><a href="../topics/02-format-attributes.md.html">2. Format attributes</a></li>
+  <li><a href="../topics/CHANGELOG.md.html">CHANGELOG</a></li>
+  <li><a href="../topics/LICENSE.md.html">MIT License</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/coercion.lua.html">coercion.lua</a></li>
+  <li><a href="../examples/format_attributes.lua.html">format_attributes.lua</a></li>
+  <li><a href="../examples/getting_started.lua.html">getting_started.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>resty.ljsonschema</code></h1>
+<p>This module does something.</p>
+<p> Explain some basics, or the design.</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Copyright (c) 2017 Julien Desgats, 2019-2023 Thijs Schreijer</li>
+        <li><strong>License</strong>: MIT, see <a href="../topics/LICENSE.md.html#">LICENSE.md</a>.</li>
+        <li><strong>Author</strong>: Julien Desgats, Thijs Schreijer</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#generate_validator">generate_validator (schema[, custom])</a></td>
+	<td class="summary">Generate a validator function from a JSONschema.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#generate_validator_code">generate_validator_code (schema[, custom])</a></td>
+	<td class="summary">Generate a validator as code (string).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#jsonschema_validator">jsonschema_validator (schema)</a></td>
+	<td class="summary">Meta-schema validator.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "generate_validator"></a>
+    <strong>generate_validator (schema[, custom])</strong>
+    </dt>
+    <dd>
+    Generate a validator function from a JSONschema.
+ This function will generate a Lua function that validates according to the given JSONschema.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">schema</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         The JSONschema to validate
+        </li>
+        <li><span class="parameter">custom</span> Options table with the following options:
+        <ul>
+        <li><span class="parameter">null</span>
+         a value used to check null elements in the validated documents
+         (<em>default</em> `cjson.null`)
+        </li>
+        <li><span class="parameter">array_mt</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">false</span></span>
+         a meta-table used to check if a table is
+ an array. To fall-back on Lua detection of table contents set the value to a boolean <code>false</code>
+         (<em>default</em> `cjson.array_mt`)
+        </li>
+        <li><span class="parameter">match_pattern</span>
+            <span class="types"><span class="type">function</span></span>
+         function called to match patterns.
+ The JSON schema specification mentions that the validator should obey
+ the ECMA-262 specification but Lua pattern matching library is much more
+ primitive than that. Users might want to use PCRE or other more powerful
+ libraries here. The function signature should be: <code>function(string, patt)</code>
+         (<em>default</em> `ngx.re.find`)
+        </li>
+        <li><span class="parameter">external_resolver</span>
+            <span class="types"><span class="type">function</span></span>
+         this will be called to resolve external schemas. It is called with the full
+ url to fetch (without the fragment part) and must return the
+ corresponding schema as a Lua table.
+ There is no default implementation: this function must be provided if
+ resolving external schemas is required. The function signature should be: <code>function(url)</code>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">coercion</span>
+            <span class="types"><span class="type">bool</span></span>
+         There are cases where incoming data will always be strings. For example
+ when validating http-headers or query arguments.
+ For these cases there is this option <code>coercion</code>. If you set this flag then
+ a string value targetting a type of <code>boolean</code>, <code>number</code>, or <code>integer</code> will be
+ attempted coerced to the proper type. After which the validation will occur.
+         (<em>default</em> false)
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the name assigned to the validator function, it might ease debugging as
+ as it will appear in stack traces.
+         (<em>default</em> "anonymous")
+        </li>
+        </li></ul>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        function The validator function, or <code>nil + error</code> if the code couldn't be generated
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "generate_validator_code"></a>
+    <strong>generate_validator_code (schema[, custom])</strong>
+    </dt>
+    <dd>
+    Generate a validator as code (string).
+ This function can be used to debug this library. It is identical to <a href="../modules/resty.ljsonschema.html#generate_validator">generate_validator</a>, except it will
+ return the generated code as a string instead of a compiled function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">schema</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         The JSONschema to validate
+        </li>
+        <li><span class="parameter">custom</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         Options table to customize the validator, see <a href="../modules/resty.ljsonschema.html#generate_validator">generate_validator</a> for the options.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string The validator code, or <code>nil + error</code> if the code couldn't be generated
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "jsonschema_validator"></a>
+    <strong>jsonschema_validator (schema)</strong>
+    </dt>
+    <dd>
+    Meta-schema validator.
+ Validates a schema to be a valid JSONschema Draft 4 schema.</p>
+
+<p> <strong>Note</strong>: this function assumes arrays to have been marked with the <code>array_mt</code> metatable.
+ If you define your schema's in Lua then you should generate your own, see the example
+ at <a href="../modules/resty.ljsonschema.metaschema.html#">resty.ljsonschema.metaschema</a>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">schema</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         The JSONschema to validate
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean <code>true</code> if the schema is valid, <code>false + error</code> otherwise
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-09-22 14:30:49 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
