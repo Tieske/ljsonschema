@@ -1,6 +1,6 @@
 local package_name = "lua-resty-ljsonschema"
-local package_version = "scm"
-local rockspec_revision = "1"
+local package_version = "1.1.6"
+local rockspec_revision = "2"
 local github_account_name = "Tieske"
 local github_repo_name = package_name
 local git_checkout = package_version == "scm" and "master" or package_version
@@ -37,6 +37,5 @@ build = {
       ["resty.ljsonschema.init"] = "src/resty/ljsonschema/init.lua",
       ["resty.ljsonschema.store"] = "src/resty/ljsonschema/store.lua",
       ["resty.ljsonschema.metaschema"] = "src/resty/ljsonschema/metaschema.lua",
-      ["resty.ljsonschema.utf8"] = "src/resty/ljsonschema/utf8.lua",
    }
 }
