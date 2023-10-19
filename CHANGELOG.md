@@ -24,6 +24,13 @@ The scope of what is covered by the version number excludes:
 
 ## Version history
 
+### 1.2.0-2 (19-Oct-2023)
+
+ - this rockspec update was lost on 1.2.0 release (see 1.1.6-2 below), applying it again.
+   This is not a real release (has no tag), since it doesn't change any code. It only updates
+   the rockspec to revert [#23](https://github.com/Tieske/lua-resty-ljsonschema/pull/23).
+   See: https://github.com/openresty/lua-cjson/issues/96
+
 ### 1.2.0 (23-Oct-2024)
 
 - fix: properly calculate utf8 sequence lengths instead of byte count
@@ -39,6 +46,11 @@ The scope of what is covered by the version number excludes:
 - chore: restructure documentation and more repo-maintenance
   ([#25](https://github.com/Tieske/lua-resty-ljsonschema/pull/25))
 
+### 1.1.6-2 (19-Oct-2023)
+
+ - this is not a real release (has no tag), since it doesn't change any code. It only updates
+   the rockspec to revert [#23](https://github.com/Tieske/lua-resty-ljsonschema/pull/23).
+   See: https://github.com/openresty/lua-cjson/issues/96
 
 ### 1.1.6 (21-Sep-2023)
 
