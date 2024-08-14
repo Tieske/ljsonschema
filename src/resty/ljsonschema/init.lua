@@ -28,12 +28,14 @@ local tonumber = tonumber
 
 local default_null = nil        -- default null token
 local default_array_mt = nil    -- default array_mt metatable
+local custom_env = nil
 local default_match_pattern     -- default reg-ex engine to use
 do
   local ok, cjson = pcall(require, 'cjson')
   if ok then
     default_null = cjson.null
     default_array_mt = cjson.array_mt
+    custom_env['default_null'] = default_null
   end
 end
 
@@ -201,7 +203,7 @@ end
 
 function codectx_mt:as_func(name, ...)
   local chunk = self:as_string()
-  local loaded_chunk, err = load(chunk, 'jsonschema:' .. (name or 'anonymous'))
+  local loaded_chunk, err = load(chunk, 'jsonschema:' .. (name or 'anonymous'), 'bt', custom_env)
   if DEBUG then
     debug_dump(self, chunk, loaded_chunk and "SUCCESS" or "FAILED", err)
   end
@@ -953,6 +955,8 @@ generate_validator = function(ctx, schema)
         ctx:stmt(sformat('  %s == %q', ctx:param(1), val), op)
       elseif tval == 'table' then
         ctx:stmt(sformat('  %s(%s, %s)', ctx:libfunc('lib.deepeq'), ctx:param(1), ctx:uservalue(val)), op)
+      elseif tval == 'userdata' and val == default_null then
+        ctx:stmt(sformat(' %s == default_null', ctx:param(1), val), op)
       else
         error('unsupported enum type: ' .. tval) -- TODO: null
       end
