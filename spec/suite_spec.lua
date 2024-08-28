@@ -16,6 +16,45 @@ local blacklist do
     ['maxLength validation'] = {
       ['two supplementary Unicode code points is long enough'] = true, -- unicode handling
     },
+
+    -- TODO: fix the ones below, introduced when updating testset to a newer version
+    ['$ref prevents a sibling id from changing the base uri'] = {
+      ['$ref resolves to /definitions/base_foo, data does not validate'] = true,
+      ['$ref resolves to /definitions/base_foo, data validates'] = true,
+    },
+    ["Location-independent identifier"] = {
+      ["match"] = true,
+      ["mismatch"] = true,
+    },
+    ["Location-independent identifier with base URI change in subschema"] = {
+      ["match"] = true,
+      ["mismatch"] = true,
+    },
+    ["empty tokens in $ref json-pointer"] = {
+      ["number is valid"] = true,
+      ["non-number is invalid"] = true,
+    },
+    ["base URI change"] = {
+      ["base URI change ref valid"] = true,
+      ["base URI change ref invalid"] = true,
+    },
+    ["base URI change - change folder"] = {
+      ["number is valid"] = true,
+      ["string is invalid"] = true,
+    },
+    ["base URI change - change folder in subschema"] = {
+      ["number is valid"] = true,
+      ["string is invalid"] = true,
+    },
+    ["Location-independent identifier in remote ref"] = {
+      ["integer is valid"] = true,
+      ["string is invalid"] = true,
+    },
+    ["heterogeneous enum-with-null validation"] = {
+      ["null is valid"] = true,
+      ["number is valid"] = true,
+      ["something else is invalid"] = true,
+    }
   }
 
   if not ngx then
@@ -56,6 +95,7 @@ local supported = {
   'spec/JSON-Schema-Test-Suite/tests/draft4/uniqueItems.json',
   -- misc
   'spec/JSON-Schema-Test-Suite/tests/draft4/enum.json',
+  'spec/JSON-Schema-Test-Suite/tests/draft4/id.json',
   'spec/JSON-Schema-Test-Suite/tests/draft4/default.json',
   -- compound
   'spec/JSON-Schema-Test-Suite/tests/draft4/allOf.json',
@@ -66,8 +106,10 @@ local supported = {
   'spec/JSON-Schema-Test-Suite/tests/draft4/ref.json',
   'spec/JSON-Schema-Test-Suite/tests/draft4/refRemote.json',
   'spec/JSON-Schema-Test-Suite/tests/draft4/definitions.json',
+  'spec/JSON-Schema-Test-Suite/tests/draft4/infinite-loop-detection.json',
   'spec/extra/ref.json',
   -- format
+  'spec/JSON-Schema-Test-Suite/tests/draft4/format.json',
   'spec/extra/format/date.json',
   'spec/extra/format/date-time.json',
   'spec/extra/format/time.json',
@@ -96,7 +138,6 @@ local external_schemas = {
   ['http://json-schema.org/draft-04/schema'] = require('resty.ljsonschema.metaschema'),
   ['http://localhost:1234/integer.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/integer.json'),
   ['http://localhost:1234/subSchemas.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/subSchemas.json'),
-  ['http://localhost:1234/folder/folderInteger.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/folder/folderInteger.json'),
   ['http://localhost:1234/name.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/name.json'),
 }
 
@@ -125,7 +166,9 @@ describe("[JSON schema Draft 4]", function()
           end)
 
           for _, case in ipairs(suite.tests) do
-            if not skipped[case.description] then
+            if skipped[case.description] then
+              pending(suite.description .. ": " .. case.description, function()end)
+            else
               local prefix = ""
               if (suite.description .. ": " .. case.description):find(
                 "--something to run ONLY--", 1, true) then

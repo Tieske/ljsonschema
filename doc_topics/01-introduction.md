@@ -1,6 +1,7 @@
 # 1. Introduction
 
-This library provides a JSON schema draft 4 validator for OpenResty and Lua 5.2+.
+This library provides a [JSON schema draft 4](https://json-schema.org/specification-links#draft-4)
+validator for OpenResty and Lua 5.2+.
 
 It has been designed to validate incoming data for HTTP APIs so it is decently
 fast: it works by transforming the given schema into a pure Lua function
