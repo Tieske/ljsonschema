@@ -28,13 +28,14 @@ local tonumber = tonumber
 
 local default_null = nil        -- default null token
 local default_array_mt = nil    -- default array_mt metatable
-local custom_env = nil
+local custom_env
 local default_match_pattern     -- default reg-ex engine to use
 do
   local ok, cjson = pcall(require, 'cjson')
   if ok then
     default_null = cjson.null
     default_array_mt = cjson.array_mt
+    custom_env = _G
     custom_env['default_null'] = default_null
   end
 end
