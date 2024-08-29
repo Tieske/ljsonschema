@@ -156,13 +156,14 @@ describe("[JSON schema Draft 4]", function()
 
         describe("["..descriptor.."] "..suite.description .. ":", function()
           local schema = suite.schema
-          local validator
+          local validator -- validator function (function)
+          local validator_code -- validator function as code (string)
 
           lazy_setup(function()
             local val = assert(jsonschema.generate_validator(schema, options))
             assert.is_function(val)
             validator = val
-            package.loaded.valcode = jsonschema.generate_validator_code(schema, options)
+            validator_code = jsonschema.generate_validator_code(schema, options)
           end)
 
           for _, case in ipairs(suite.tests) do
@@ -175,7 +176,9 @@ describe("[JSON schema Draft 4]", function()
                 prefix = "#only "
               end
               it(prefix .. case.description, function()
-                --print("data to validate: ", require("pl.pretty").write(case.data))
+                -- print("data to validate: ", require("pl.pretty").write(case.data))
+                assert(validator_code, "no code was generated") -- just here to prevent the linter from complaining
+                -- print("validator function in use: \n" .. validator_code)
                 if case.valid then
                   assert.has.no.error(function()
                     assert(validator(case.data))
