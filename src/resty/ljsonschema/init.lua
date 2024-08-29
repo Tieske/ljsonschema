@@ -919,9 +919,10 @@ generate_validator = function(ctx, schema)
         -- integer multipleOf: modulo is enough
         ctx:stmt(sformat('  if %s %% %d ~= 0 then', ctx:param(1), mof))
       else
-          -- float multipleOf: it's a bit more hacky and slow
+        -- float multipleOf: it's a bit more hacky and slow
         ctx:stmt(sformat('  local quotient = %s / %s', ctx:param(1), mof))
-        ctx:stmt(sformat('  if %s(quotient) ~= quotient then', ctx:libfunc('math.modf')))
+        -- ctx:stmt("print('quotient:', quotient)")
+        ctx:stmt(sformat('  if %s(quotient) ~= quotient or %s == quotient or %s == -quotient then', ctx:libfunc('math.modf'), ctx:libfunc('math.huge'), ctx:libfunc('math.huge')))
       end
       ctx:stmt(sformat(  '    return false, %s("expected %%s to be a multiple of %s", %s)',
                        ctx:libfunc('string.format'), mof, ctx:param(1)))
@@ -931,7 +932,7 @@ generate_validator = function(ctx, schema)
   end
 
   -- enum values
-  -- TODO: for big sets of hashable values (> 16 or so), it might be intersing to create a
+  -- TODO: for big sets of hashable values (> 16 or so), it might be interesting to create a
   --       table beforehand
   if schema.enum then
     ctx:stmt('if not (')
