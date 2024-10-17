@@ -29,6 +29,11 @@ local tonumber = tonumber
 local default_null = nil        -- default null token
 local default_array_mt = nil    -- default array_mt metatable
 local default_match_pattern     -- default reg-ex engine to use
+
+local function default_str_len(s)
+  return #s
+end
+
 do
   local ok, cjson = pcall(require, 'cjson')
   if ok then
@@ -799,16 +804,17 @@ generate_validator = function(ctx, schema)
 
   if schema.minLength or schema.maxLength or schema.pattern or schema.format then
     ctx:stmt(sformat('if %s == "string" then', datatype))
+      ctx:stmt(sformat('  local length = %s(%s) or #%s', ctx:libfunc('custom.str_len'), ctx:param(1), ctx:param(1)))
     if schema.minLength then
-      ctx:stmt(sformat('  if #%s < %d then', ctx:param(1), schema.minLength))
-      ctx:stmt(sformat('    return false, %s("string too short, expected at least %d, got %%d", #%s)',
-                       ctx:libfunc('string.format'), schema.minLength, ctx:param(1)))
+      ctx:stmt(sformat('  if length < %d then', schema.minLength))
+      ctx:stmt(sformat('    return false, %s("string too short, expected at least %d, got %%d", length)',
+                       ctx:libfunc('string.format'), schema.minLength))
       ctx:stmt(        '  end')
     end
     if schema.maxLength then
-      ctx:stmt(sformat('  if #%s > %d then', ctx:param(1), schema.maxLength))
-      ctx:stmt(sformat('    return false, %s("string too long, expected at most %d, got %%d", #%s)',
-                       ctx:libfunc('string.format'), schema.maxLength, ctx:param(1)))
+      ctx:stmt(sformat('  if length > %d then', schema.maxLength))
+      ctx:stmt(sformat('    return false, %s("string too long, expected at most %d, got %%d", length)',
+                       ctx:libfunc('string.format'), schema.maxLength))
       ctx:stmt(        '  end')
     end
     if schema.pattern then
@@ -1083,7 +1089,8 @@ local _M = {
     local customlib = {
       null = custom and custom.null or default_null,
       array_mt = array_mt,
-      match_pattern = custom and custom.match_pattern or default_match_pattern
+      match_pattern = custom and custom.match_pattern or default_match_pattern,
+      str_len = custom and custom.str_len or default_str_len,
     }
     local name = custom and custom.name
     return generate_main_validator_ctx(schema, custom):as_func(name, validatorlib, customlib)
