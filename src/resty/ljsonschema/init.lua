@@ -29,10 +29,7 @@ local tonumber = tonumber
 local default_null = nil        -- default null token
 local default_array_mt = nil    -- default array_mt metatable
 local default_match_pattern     -- default reg-ex engine to use
-
-local function default_str_len(s)
-  return #s
-end
+local str_len                   -- string length function
 
 do
   local ok, cjson = pcall(require, 'cjson')
@@ -804,7 +801,11 @@ generate_validator = function(ctx, schema)
 
   if schema.minLength or schema.maxLength or schema.pattern or schema.format then
     ctx:stmt(sformat('if %s == "string" then', datatype))
+    if str_len then
       ctx:stmt(sformat('  local length = %s(%s) or #%s', ctx:libfunc('custom.str_len'), ctx:param(1), ctx:param(1)))
+    else
+      ctx:stmt(sformat('  local length = #%s', ctx:param(1)))
+    end
     if schema.minLength then
       ctx:stmt(sformat('  if length < %d then', schema.minLength))
       ctx:stmt(sformat('    return false, %s("string too short, expected at least %d, got %%d", length)',
@@ -1068,6 +1069,7 @@ local _M = {
   -- the ECMA-262 specification but Lua pattern matching library is much more
   -- primitive than that. Users might want to use PCRE or other more powerful
   -- libraries here. The function signature should be: `function(string, patt)`
+  -- @tparam[opt] function custom.str_len function called to get the length of a string.
   -- @tparam[opt] function custom.external_resolver this will be called to resolve external schemas. It is called with the full
   -- url to fetch (without the fragment part) and must return the
   -- corresponding schema as a Lua table.
@@ -1086,11 +1088,12 @@ local _M = {
     if custom and custom.array_mt ~= nil then
       array_mt = custom.array_mt
     end
+    str_len = custom and custom.str_len
     local customlib = {
       null = custom and custom.null or default_null,
       array_mt = array_mt,
       match_pattern = custom and custom.match_pattern or default_match_pattern,
-      str_len = custom and custom.str_len or default_str_len,
+      str_len = str_len,
     }
     local name = custom and custom.name
     return generate_main_validator_ctx(schema, custom):as_func(name, validatorlib, customlib)
