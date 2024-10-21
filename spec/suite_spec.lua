@@ -4,6 +4,7 @@
 local json = require 'cjson'
 json.decode_array_with_array_mt(true)
 local jsonschema = require 'resty.ljsonschema'
+local f = require 'pl.file'
 
 -- the full support of JSON schema in Lua is difficult to achieve in some cases
 -- so some tests from the official test suite fail, skip them.
@@ -141,6 +142,122 @@ local options = {
     return external_schemas[url]
   end,
 }
+
+local function utf8_str_len(s)
+  local byte = string.byte
+  local ERR = 'Invalid UTF-8 encoding'
+
+  -- UTF8 validator
+  local utf8_validator = function(i)
+    local function utf8_tail(c)
+      return c >= 128 and c <= 191
+    end
+
+    local c1 = byte(s, i)
+    if c1 >= 0 and c1 < 128 then
+      -- ASCII
+      return 1
+
+    elseif c1 >= 194 and c1 <=223 then
+      -- UTF8-2
+      local c2 = byte(s, i + 1)
+      if not c2 or not utf8_tail(c2) then
+        return nil, ERR
+      end
+
+      return 2
+
+    elseif c1 >= 224 and c1 <=239 then
+      -- UTF8-3
+      local c2 = byte(s, i + 1)
+      local c3 = byte(s, i + 2)
+
+      if not c2 or not c3 then
+        return nil, ERR
+      end
+
+      if c1 == 224 and (c2 < 160 or c2 > 191) then
+        return nil, ERR
+      elseif c1 == 237 and (c2 < 128 or c2 > 159) then
+        return nil, ERR
+      elseif not utf8_tail(c2) then
+        return nil, ERR
+      end
+
+      if not utf8_tail(c3) then
+        return nil, ERR
+      end
+
+      return 3
+
+    elseif c1 < 244 then
+      local c2 = byte(s, i + 1)
+      local c3 = byte(s, i + 2)
+      local c4 = byte(s, i + 3)
+
+      if not c2 or not c3 or not c4 then
+        return nil, ERR
+      end
+
+      if c1 == 240 and (c2 < 144 or c2 > 191) then
+        return nil, ERR
+      elseif c1 == 244 and (c2 < 128 or c2 > 144) then
+        return nil, ERR
+      elseif not utf8_tail(c2) then
+        return nil, ERR
+      end
+
+      if not utf8_tail(c3) or not utf8_tail(c4) then
+        return nil, ERR
+      end
+
+      return 4
+    end
+  end
+
+  if type(s) ~= 'string' then
+    return nil, "bad argument #1: expect 'string', got ".. type(s).. ")"
+  end
+
+  local s_len = #s
+  local pos = 1
+  local l = 0
+
+  while pos <= s_len do
+    l = l + 1
+    local n, err = utf8_validator(pos)
+    if not n then
+      return nil, err
+    end
+
+    pos = pos + n
+  end
+
+  return l
+end
+
+describe("utf8_str_len test", function()
+  local test_cases = assert(readjson("/extra/format/utf8.json"))
+  for _, t in ipairs(test_cases) do
+    it(t.description, function()
+      local len, err = utf8_str_len(t.input)
+      if t.expected then
+        assert.is_nil(err)
+        assert.equal(t.expected, len)
+      else
+        assert.equal(t.error, err)
+        assert.is_nil(len)
+      end
+    end)
+  end
+
+  it("non-utf8 encoding", function()
+    local s = string.char(0x80, 0x80, 0x80, 0x80)
+    local len, err = utf8_str_len(s)
+    assert.is_nil(len)
+    assert.equal("Invalid UTF-8 encoding", err)
+  end)
+end)
 
 describe("[JSON schema Draft 4]", function()
 
