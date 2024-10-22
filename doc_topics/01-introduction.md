@@ -27,6 +27,11 @@ When decoding JSON into a Lua table there are several things that require some
 extra attention. The default is to use `lua-cjson` and its implementation of the
 values below.
 
+The prefered setup:
+```lua
+local cjson = require("cjson.safe").new() -- use 'new' to not pollute the global instance
+cjson.decode_array_with_array_mt(true) -- force decoded arrays to be marked with `array_mt`
+```
 
 ## 1.2.1 Null values
 
