@@ -26,6 +26,8 @@ The scope of what is covered by the version number excludes:
 
 ### unreleased
 
+- fix: support `null` as an option in `enum` types
+  ([#26](https://github.com/Tieske/lua-resty-ljsonschema/pull/26))
 - chore: update the test suite to a more recent version; 23.2.0
   ([#27](https://github.com/Tieske/lua-resty-ljsonschema/pull/27))
 - chore: list all disabled tests as `pending` (to make them visible)

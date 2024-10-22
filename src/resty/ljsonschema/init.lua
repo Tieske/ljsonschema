@@ -225,7 +225,8 @@ function codectx_mt:child(ref)
     _body = {},
     _root = self._root,
     _nparams = 0,
-    _coercion = self._coercion
+    _coercion = self._coercion,
+    _null = self._null,
   }, codectx_mt)
 end
 
@@ -245,6 +246,7 @@ local function codectx(schema, options)
     _globals = {},
     _uservalues = {},
     _coercion = not not options.coercion,
+    _null = options.null or default_null,
     -- schema management
     _validators = {}, -- maps paths to local variable validators
     _external_resolver = options.external_resolver,
@@ -953,8 +955,10 @@ generate_validator = function(ctx, schema)
         ctx:stmt(sformat('  %s == %q', ctx:param(1), val), op)
       elseif tval == 'table' then
         ctx:stmt(sformat('  %s(%s, %s)', ctx:libfunc('lib.deepeq'), ctx:param(1), ctx:uservalue(val)), op)
+      elseif val == ctx._null then
+        ctx:stmt(sformat('  %s == custom.null', ctx:param(1)))
       else
-        error('unsupported enum type: ' .. tval) -- TODO: null
+        error('unsupported enum type: ' .. tval)
       end
     end
     ctx:stmt(') then')

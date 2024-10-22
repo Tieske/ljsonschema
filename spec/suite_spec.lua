@@ -50,11 +50,6 @@ local blacklist do
       ["integer is valid"] = true,
       ["string is invalid"] = true,
     },
-    ["heterogeneous enum-with-null validation"] = {
-      ["null is valid"] = true,
-      ["number is valid"] = true,
-      ["something else is invalid"] = true,
-    }
   }
 
   if not ngx then
