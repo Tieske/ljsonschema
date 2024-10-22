@@ -1,7 +1,13 @@
---- This module does something.
+--- This module implements a JSON Schema validator for Lua.
+-- Schemas will be compiled to Lua code. The generated function can be used to
+-- validate JSON data against the schema.
 --
--- Explain some basics, or the design.
+-- The module is based on the JSON Schema Draft 4 specification.
 --
+-- The module works best in conjunction with the `lua-cjson` library for JSON
+-- decoding. However, it can be used with other libraries as well.
+-- Please read up on how to configure the JSON library before you start.
+-- See [Handling JSON](../topics/01-introduction.md.html#1_2_Handling_JSON).
 -- @copyright Copyright (c) 2017 Julien Desgats, 2019-2023 Thijs Schreijer
 -- @author Julien Desgats, Thijs Schreijer
 -- @license MIT, see `LICENSE.md`.
