@@ -24,6 +24,18 @@ The scope of what is covered by the version number excludes:
 
 ## Version history
 
+### unreleased
+
+- chore: update the test suite to a more recent version; 23.2.0
+  ([#27](https://github.com/Tieske/lua-resty-ljsonschema/pull/27))
+- chore: list all disabled tests as `pending` (to make them visible)
+  ([#27](https://github.com/Tieske/lua-resty-ljsonschema/pull/27))
+- fix: fix numeric overflow (new case from updated test-suite)
+  ([#27](https://github.com/Tieske/lua-resty-ljsonschema/pull/27))
+- chore: restructure documentation and more repo-maintenance
+  ([#25](https://github.com/Tieske/lua-resty-ljsonschema/pull/25))
+
+
 ### 1.1.6 (21-Sep-2023)
 
 - fix: properly check custom.array_mt
