@@ -29,7 +29,10 @@ local tonumber = tonumber
 local default_null = nil        -- default null token
 local default_array_mt = nil    -- default array_mt metatable
 local default_match_pattern     -- default reg-ex engine to use
-local str_len                   -- string length function
+local default_len do
+  local utf_len = require("resty.ljsonschema.utf8").len  -- string length function
+  default_len = function(s) return utf_len(s) or #s end -- add fallback to bytecount in case of invalid utf8
+end
 
 do
   local ok, cjson = pcall(require, 'cjson')
@@ -801,11 +804,10 @@ generate_validator = function(ctx, schema)
 
   if schema.minLength or schema.maxLength or schema.pattern or schema.format then
     ctx:stmt(sformat('if %s == "string" then', datatype))
-    if str_len then
-      ctx:stmt(sformat('  local length = %s(%s) or #%s', ctx:libfunc('custom.str_len'), ctx:param(1), ctx:param(1)))
-    else
-      ctx:stmt(sformat('  local length = #%s', ctx:param(1)))
-    end
+    ctx:stmt(sformat('  local length = %s(%s)', ctx:libfunc('custom.str_len'), ctx:param(1)))
+    ctx:stmt(        '  if not length then') -- allows for overriding and NOT allowing invalid UTF8
+    ctx:stmt(        '    return false, "failed to get string length, invalid utf8"')
+    ctx:stmt(        '  end')
     if schema.minLength then
       ctx:stmt(sformat('  if length < %d then', schema.minLength))
       ctx:stmt(sformat('    return false, %s("string too short, expected at least %d, got %%d", length)',
@@ -1069,7 +1071,9 @@ local _M = {
   -- the ECMA-262 specification but Lua pattern matching library is much more
   -- primitive than that. Users might want to use PCRE or other more powerful
   -- libraries here. The function signature should be: `function(string, patt)`
-  -- @tparam[opt] function custom.str_len function called to get the length of a string.
+  -- @tparam[opt] function custom.str_len function called to get the length of a string. The default
+  -- implementation is `utf8.len` on Lua 5.3+ with a fallback to byte-count if the sequence is invalid UTF-8.
+  -- A custom Lua function is included for older Lua versions. The function signature should be: `function(string)`
   -- @tparam[opt] function custom.external_resolver this will be called to resolve external schemas. It is called with the full
   -- url to fetch (without the fragment part) and must return the
   -- corresponding schema as a Lua table.
@@ -1088,7 +1092,7 @@ local _M = {
     if custom and custom.array_mt ~= nil then
       array_mt = custom.array_mt
     end
-    str_len = custom and custom.str_len
+    local str_len = custom and custom.str_len or default_len
     local customlib = {
       null = custom and custom.null or default_null,
       array_mt = array_mt,
