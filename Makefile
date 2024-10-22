@@ -11,6 +11,7 @@ TAB=$(shell printf "\t")
 # dev/test dependencies; versions can be pinned. Example: "ldoc 1.4.6"
 DEV_ROCKS = "busted" "luacheck" "ldoc" "luacov"
 
+LRCMD=luarocks --tree=user
 
 target_not_specified: help
 	@exit 1
@@ -38,12 +39,12 @@ help:
 
 
 install: luarocks
-	luarocks make
+	$(LRCMD) make
 
 
 uninstall: luarocks
-	if (luarocks list --porcelain ${ROCK_NAME} | grep "^${ROCK_NAME}${TAB}" | grep -q "installed") ; then \
-	  luarocks remove ${ROCK_NAME} --force; \
+	if ($(LRCMD) list --porcelain ${ROCK_NAME} | grep "^${ROCK_NAME}${TAB}" | grep -q "installed") ; then \
+	  $(LRCMD) remove ${ROCK_NAME} --force; \
 	fi;
 
 
@@ -70,7 +71,7 @@ testinst: clean_luacov dev uninstall install
 lint: dev
 	@echo "luarocks lint ..."
 	@for spec in $(shell find . -type f -name "*.rockspec") ; do \
-	  (luarocks lint $$spec && echo "$$spec [OK]") || (echo "$$spec [NOK]"; exit 1); \
+	  ($(LRCMD) lint $$spec && echo "$$spec [OK]") || (echo "$$spec [NOK]"; exit 1); \
 	done
 	luacheck .
 
@@ -87,7 +88,7 @@ docs: doc
 
 .PHONY: deps
 deps: luarocks
-	luarocks install $(ROCKSPEC) --deps-only
+	$(LRCMD) install $(ROCKSPEC) --deps-only
 
 
 # submodule with the JSONscehma test suite
@@ -98,7 +99,7 @@ spec/JSON-Schema-Test-Suite/.git:
 .PHONY: dev
 dev: luarocks deps spec/JSON-Schema-Test-Suite/.git
 	@for rock in $(DEV_ROCKS) ; do \
-	  (luarocks list --porcelain $$rock | grep -q "installed") || (luarocks install $$rock || exit 1); \
+	  ($(LRCMD) list --porcelain $$rock | grep -q "installed") || ($(LRCMD) install $$rock || exit 1); \
 	done;
 
 
