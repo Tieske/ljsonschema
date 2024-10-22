@@ -1,3 +1,17 @@
+--[[
+
+The use case for coercion is based on non-typed data. Typically when validating
+a JSON payload, it is decoded, and by its nature, the decoded data has all elements
+in their corresponding types. However, when the data is received as a string, and
+it is not up front known the data is JSON, then we lack type information.
+
+Typical example; OpenAPI specs that define a JSONschema for a header or query parameter.
+These will always be strings. Now if you want to validate the strings "1", "100", "true",
+"false", etc. against a JSONschema that expects integers or booleans, then automatic
+coercion is the way to go.
+
+]]
+
 local jsonschema = require 'resty.ljsonschema'
 
 local my_schema = {
