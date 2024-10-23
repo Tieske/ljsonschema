@@ -26,6 +26,7 @@
 <br/>
 <h1>resty.ljsonschema</h1>
 
+
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -36,10 +37,11 @@
 <li><a href="#1_2_Handling_JSON">1.2 Handling JSON </a></li>
 <li><a href="#1_2_1_Null_values">1.2.1 Null values </a></li>
 <li><a href="#1_2_2_Array_vs_Object">1.2.2 Array vs Object </a></li>
-<li><a href="#1_3_Customizing_behaviour">1.3 Customizing behaviour </a></li>
-<li><a href="#1_4_Automatic_coercion">1.4 Automatic coercion </a></li>
-<li><a href="#1_5_Installation">1.5 Installation </a></li>
-<li><a href="#1_6_Development">1.6 Development </a></li>
+<li><a href="#1_3_UTF_8_encoding">1.3 UTF-8 encoding </a></li>
+<li><a href="#1_4_Customizing_behaviour">1.4 Customizing behaviour </a></li>
+<li><a href="#1_5_Automatic_coercion">1.5 Automatic coercion </a></li>
+<li><a href="#1_6_Installation">1.6 Installation </a></li>
+<li><a href="#1_7_Development">1.7 Development </a></li>
 </ul>
 
 
@@ -69,7 +71,8 @@
 
 <h1>1. Introduction</h1>
 
-<p>This library provides a JSON schema draft 4 validator for OpenResty and Lua 5.2+.</p>
+<p>This library provides a <a href="https://json-schema.org/specification-links#draft-4">JSON schema draft 4</a>
+validator for OpenResty and Lua 5.2+.</p>
 
 <p>It has been designed to validate incoming data for HTTP APIs so it is decently
 fast: it works by transforming the given schema into a pure Lua function
@@ -87,8 +90,7 @@ difficult to reach. Some of the limitations can be solved using customizing the
 behaviour, but some features are not supported (correctly) at this time:</p>
 
 <ul>
-    <li>Unicode strings are considered as a stream of bytes (so length checks might
-    not behave as expected)</li>
+    <li>Pattern matching/regex</li>
 </ul>
 
 
@@ -98,6 +100,13 @@ behaviour, but some features are not supported (correctly) at this time:</p>
 <p>When decoding JSON into a Lua table there are several things that require some
 extra attention. The default is to use <code>lua-cjson</code> and its implementation of the
 values below.</p>
+
+<p>The prefered setup:</p>
+
+<pre>
+<span class="keyword">local</span> cjson = <span class="global">require</span>(<span class="string">"cjson.safe"</span>).<span class="function-name">new</span>() <span class="comment">-- use 'new' to not pollute the global instance
+</span>cjson.<span class="function-name">decode_array_with_array_mt</span>(<span class="keyword">true</span>) <span class="comment">-- force decoded arrays to be marked with <code>array_mt</code></span>
+</pre>
 
 
 <p><a name="1_2_1_Null_values"></a></p>
@@ -122,8 +131,22 @@ decoded to an empty Lua table. So it cannot be properly validated as being eithe
 <p>For this purpose a meta-table (<code>array_mt</code>) is defined and should be attached to arrays.</p>
 
 
-<p><a name="1_3_Customizing_behaviour"></a></p>
-<h2>1.3 Customizing behaviour</h2>
+<p><a name="1_3_UTF_8_encoding"></a></p>
+<h2>1.3 UTF-8 encoding</h2>
+
+<p>Lua has functionality to handle UTF-8 from Lua version 5.3 onwards. This library only needs
+a string length function, and it has a pure Lua implementation that is used when the Lua
+native <code>utf8.len()</code> function is unavailable.</p>
+
+<p>Especially on platforms where performance matters it might be worthwhile investigating to
+replace the function by specifying your own when calling <code>generate_validator</code>.</p>
+
+<p>The behaviour is that the function returns the length of the string in characters (not bytes)
+or if that fails (in case of binary string for example) falls back to byte-count.</p>
+
+
+<p><a name="1_4_Customizing_behaviour"></a></p>
+<h2>1.4 Customizing behaviour</h2>
 
 <p>Some advanced features of JSON Schema are not possible to implement using the
 standard library and require third party libraries to work.</p>
@@ -133,8 +156,8 @@ the simple schemas, extension points are provided. For details see the
 <code>generate_validator</code> method and its options.</p>
 
 
-<p><a name="1_4_Automatic_coercion"></a></p>
-<h2>1.4 Automatic coercion</h2>
+<p><a name="1_5_Automatic_coercion"></a></p>
+<h2>1.5 Automatic coercion</h2>
 
 <p>When validating properties that are not json, the input usually always is a
 string value. For example a query string or header value.</p>
@@ -144,8 +167,8 @@ a string value targetting a type of <code>boolean</code>, <code>number</code>, o
 attempted coerced to the proper type. After which the validation will occur.</p>
 
 
-<p><a name="1_5_Installation"></a></p>
-<h2>1.5 Installation</h2>
+<p><a name="1_6_Installation"></a></p>
+<h2>1.6 Installation</h2>
 
 <p>It is aimed at use with <code>lua-cjson</code>. Since it uses the cjson
 semantics for arrays (<a href="https://github.com/openresty/lua-cjson#decode_array_with_array_mt"><code>array_mt</code></a>)</p>
@@ -157,15 +180,15 @@ semantics for arrays (<a href="https://github.com/openresty/lua-cjson#decode_arr
 luarocks install lua-resty-ljsonschema
 </pre>
 
-<p>To install it from the repo use the <code>Makefile</code>`:</p>
+<p>To install it from the repo use the <code>Makefile</code>:</p>
 
 
 <pre>
 make install
 </pre>
 
-<p><a name="1_6_Development"></a></p>
-<h2>1.6 Development</h2>
+<p><a name="1_7_Development"></a></p>
+<h2>1.7 Development</h2>
 
 <p>Running the tests requires the Busted test framework. The test suite is based of a
 standard test suite for JSONschema and is included as a Git submodule.</p>
@@ -182,8 +205,8 @@ make
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-09-22 14:30:49 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-10-23 10:01:23 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -24,7 +24,7 @@ The scope of what is covered by the version number excludes:
 
 ## Version history
 
-### unreleased
+### 1.2.0 (23-Oct-2024)
 
 - fix: properly calculate utf8 sequence lengths instead of byte count
   ([#30](https://github.com/Tieske/lua-resty-ljsonschema/pull/30))

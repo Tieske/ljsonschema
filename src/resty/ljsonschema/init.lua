@@ -8,7 +8,7 @@
 -- decoding. However, it can be used with other libraries as well.
 -- Please read up on how to configure the JSON library before you start.
 -- See [Handling JSON](../topics/01-introduction.md.html#1_2_Handling_JSON).
--- @copyright Copyright (c) 2017 Julien Desgats, 2019-2023 Thijs Schreijer
+-- @copyright Copyright (c) 2017 Julien Desgats, 2019-2024 Thijs Schreijer
 -- @author Julien Desgats, Thijs Schreijer
 -- @license MIT, see `LICENSE.md`.
 

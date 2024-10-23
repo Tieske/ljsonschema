@@ -26,6 +26,7 @@
 <br/>
 <h1>resty.ljsonschema</h1>
 
+
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -60,11 +61,19 @@
 <div id="content">
 
 <h1>Module <code>resty.ljsonschema</code></h1>
-<p>This module does something.</p>
-<p> Explain some basics, or the design.</p>
+<p>This module implements a JSON Schema validator for Lua.</p>
+<p> Schemas will be compiled to Lua code. The generated function can be used to
+ validate JSON data against the schema.</p>
+
+<p> The module is based on the JSON Schema Draft 4 specification.</p>
+
+<p> The module works best in conjunction with the <code>lua-cjson</code> library for JSON
+ decoding. However, it can be used with other libraries as well.
+ Please read up on how to configure the JSON library before you start.
+ See <a href="../topics/01-introduction.md.html#1_2_Handling_JSON">Handling JSON</a>.</p>
     <h3>Info:</h3>
     <ul>
-        <li><strong>Copyright</strong>: Copyright (c) 2017 Julien Desgats, 2019-2023 Thijs Schreijer</li>
+        <li><strong>Copyright</strong>: Copyright (c) 2017 Julien Desgats, 2019-2024 Thijs Schreijer</li>
         <li><strong>License</strong>: MIT, see <a href="../topics/LICENSE.md.html#">LICENSE.md</a>.</li>
         <li><strong>Author</strong>: Julien Desgats, Thijs Schreijer</li>
     </ul>
@@ -105,7 +114,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">schema</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
          The JSONschema to validate
         </li>
         <li><span class="parameter">custom</span> Options table with the following options:
@@ -115,7 +124,7 @@
          (<em>default</em> `cjson.null`)
         </li>
         <li><span class="parameter">array_mt</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">false</span></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a> or <span class="type">false</span></span>
          a meta-table used to check if a table is
  an array. To fall-back on Lua detection of table contents set the value to a boolean <code>false</code>
          (<em>default</em> `cjson.array_mt`)
@@ -128,6 +137,13 @@
  primitive than that. Users might want to use PCRE or other more powerful
  libraries here. The function signature should be: <code>function(string, patt)</code>
          (<em>default</em> `ngx.re.find`)
+        </li>
+        <li><span class="parameter">str_len</span>
+            <span class="types"><span class="type">function</span></span>
+         function called to get the length of a string. The default
+ implementation is <code>utf8.len</code> on Lua 5.3+ with a fallback to byte-count if the sequence is invalid UTF-8.
+ A custom Lua function is included for older Lua versions. The function signature should be: <code>function(string)</code>
+         (<em>optional</em>)
         </li>
         <li><span class="parameter">external_resolver</span>
             <span class="types"><span class="type">function</span></span>
@@ -148,7 +164,7 @@
          (<em>default</em> false)
         </li>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
          the name assigned to the validator function, it might ease debugging as
  as it will appear in stack traces.
          (<em>default</em> "anonymous")
@@ -179,11 +195,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">schema</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
          The JSONschema to validate
         </li>
         <li><span class="parameter">custom</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
          Options table to customize the validator, see <a href="../modules/resty.ljsonschema.html#generate_validator">generate_validator</a> for the options.
          (<em>optional</em>)
         </li>
@@ -215,7 +231,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">schema</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
          The JSONschema to validate
         </li>
     </ul>
@@ -236,8 +252,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-09-22 14:30:49 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-10-23 10:01:23 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
