@@ -17,8 +17,7 @@ Due to the nature of the Lua language, the full JSON schema support is
 difficult to reach. Some of the limitations can be solved using customizing the
 behaviour, but some features are not supported (correctly) at this time:
 
-* Unicode strings are considered as a stream of bytes (so length checks might
-  not behave as expected)
+* Pattern matching/regex
 
 
 ## 1.2 Handling JSON
@@ -53,7 +52,20 @@ decoded to an empty Lua table. So it cannot be properly validated as being eithe
 For this purpose a meta-table (`array_mt`) is defined and should be attached to arrays.
 
 
-## 1.3 Customizing behaviour
+## 1.3 UTF-8 encoding
+
+Lua has functionality to handle UTF-8 from Lua version 5.3 onwards. This library only needs
+a string length function, and it has a pure Lua implementation that is used when the Lua
+native `utf8.len()` function is unavailable.
+
+Especially on platforms where performance matters it might be worthwhile investigating to
+replace the function by specifying your own when calling `generate_validator`.
+
+The behaviour is that the function returns the length of the string in characters (not bytes)
+or if that fails (in case of binary string for example) falls back to byte-count.
+
+
+## 1.4 Customizing behaviour
 
 Some advanced features of JSON Schema are not possible to implement using the
 standard library and require third party libraries to work.
@@ -63,7 +75,7 @@ the simple schemas, extension points are provided. For details see the
 `generate_validator` method and its options.
 
 
-## 1.4 Automatic coercion
+## 1.5 Automatic coercion
 
 When validating properties that are not json, the input usually always is a
 string value. For example a query string or header value.
@@ -73,7 +85,7 @@ a string value targetting a type of `boolean`, `number`, or `integer` will be
 attempted coerced to the proper type. After which the validation will occur.
 
 
-## 1.5 Installation
+## 1.6 Installation
 
 It is aimed at use with `lua-cjson`. Since it uses the cjson
 semantics for arrays ([`array_mt`](https://github.com/openresty/lua-cjson#decode_array_with_array_mt))
@@ -87,7 +99,7 @@ To install it from the repo use the `Makefile`:
     make install
 
 
-## 1.6 Development
+## 1.7 Development
 
 Running the tests requires the Busted test framework. The test suite is based of a
 standard test suite for JSONschema and is included as a Git submodule.

@@ -10,12 +10,6 @@ local jsonschema = require 'resty.ljsonschema'
 local blacklist do
   blacklist = {
     -- edge cases, not supported features
-    ['minLength validation'] = {
-      ['one supplementary Unicode code point is not long enough'] = true, -- unicode handling
-    },
-    ['maxLength validation'] = {
-      ['two supplementary Unicode code points is long enough'] = true, -- unicode handling
-    },
 
     -- TODO: fix the ones below, introduced when updating testset to a newer version
     ['$ref prevents a sibling id from changing the base uri'] = {

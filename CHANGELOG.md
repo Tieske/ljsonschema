@@ -26,6 +26,8 @@ The scope of what is covered by the version number excludes:
 
 ### unreleased
 
+- fix: properly calculate utf8 sequence lengths instead of byte count
+  ([#30](https://github.com/Tieske/lua-resty-ljsonschema/pull/30))
 - fix: support `null` as an option in `enum` types
   ([#26](https://github.com/Tieske/lua-resty-ljsonschema/pull/26))
 - chore: update the test suite to a more recent version; 23.2.0
