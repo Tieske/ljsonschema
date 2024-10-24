@@ -28,7 +28,7 @@ description = {
 dependencies = {
    "lua >= 5.1",
    "net-url",
-   -- "lua-cjson", disabled, see https://github.com/openresty/lua-cjson/issues/96
+   "lua-cjson",
 }
 
 build = {
