@@ -44,7 +44,9 @@ jobs:
         withLuaPath: "/usr/local/openresty/luajit/"
 
     - name: dependencies
-      run: make dev
+      run: |
+        make dev
+        luarocks install lua-cjson
 
     - name: test
       run: busted

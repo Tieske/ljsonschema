@@ -24,7 +24,7 @@ The scope of what is covered by the version number excludes:
 
 ## Version history
 
-### 1.2.0-2 (19-Oct-2023)
+### 1.2.0-2 (24-Oct-2024)
 
  - this rockspec update was lost on 1.2.0 release (see 1.1.6-2 below), applying it again.
    This is not a real release (has no tag), since it doesn't change any code. It only updates

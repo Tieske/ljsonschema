@@ -45,7 +45,9 @@ jobs:
     - uses: leafo/gh-actions-luarocks@v4
 
     - name: dependencies
-      run: make dev
+      run: |
+        make dev
+        luarocks install lua-cjson
 
     - name: test
       run: busted --lua=lua --Xoutput "--color"
